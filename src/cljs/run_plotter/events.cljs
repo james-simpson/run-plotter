@@ -13,9 +13,32 @@
 (re-frame/reg-event-fx
   :map-clicked
   (fn [{:keys [db]} [_ lat lng]]
-    {:db (update db :waypoints #(conj % [lat lng]))}))
+    {:db (update db :waypoints #(concat % [[lat lng]]))}))
 
 (re-frame/reg-event-fx
   :distance-updated
   (fn [{:keys [db]} [_ distance]]
     {:db (assoc db :total-distance distance)}))
+
+(re-frame/reg-event-fx
+  :clear-route
+  (fn [{:keys [db]} _]
+    {:db (assoc db :waypoints []
+                   :deleted-waypoints []
+                   :total-distance 0)}))
+
+(re-frame/reg-event-fx
+  :undo-waypoint
+  (fn [{:keys [db]} _]
+    (let [waypoint-to-remove (last (:waypoints db))]
+      {:db (-> db
+               (update :waypoints butlast)
+               (update :deleted-waypoints #(concat % [waypoint-to-remove])))})))
+
+(re-frame/reg-event-fx
+  :redo-waypoint
+  (fn [{:keys [db]} _]
+    (let [waypoint-to-add (last (:deleted-waypoints db))]
+      {:db (-> db
+               (update :waypoints #(concat % [waypoint-to-add]))
+               (update :deleted-waypoints butlast))})))
