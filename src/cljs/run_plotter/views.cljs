@@ -4,11 +4,13 @@
     [run-plotter.subs :as subs]
     [reagent.core :as reagent]
     [goog.object]
-    [goog.string :as gstring]))
+    [goog.string :as gstring]
+    [antizer.reagent :as ant]))
 
 ;;
 ;; map component
 ;;
+
 ; MAPBOX_TOKEN variable is loaded from resources/js/config.js
 (def ^:private mapbox-token js/MAPBOX_TOKEN)
 
@@ -61,32 +63,45 @@
        :component-did-update (partial map-did-update route-control-atom)})))
 
 (defn- distance
-  [value-in-meters]
-  (let [value-in-km (/ value-in-meters 1000)]
-    [:h2 (gstring/format "%.3f km" value-in-km)]))
+  [value-in-meters units]
+  (let [value-in-km (/ value-in-meters 1000)
+        value (if (= :miles units)
+                (* value-in-km 0.621371)
+                value-in-km)]
+
+    [:h2 (str (gstring/format "%.3f %s" value (name units)))]))
 
 (defn- route-operations-panel
   [waypoints deleted-waypoints]
   [:div
-   [:button
+   [ant/button
     {:on-click #(re-frame/dispatch [:clear-route])} "Clear route"]
-   [:button
+   [ant/button
     {:on-click #(re-frame/dispatch [:undo-waypoint])
      :disabled (empty? waypoints)} "Undo"]
-   [:button
+   [ant/button
     {:on-click #(re-frame/dispatch [:redo-waypoint])
      :disabled (empty? deleted-waypoints)} "Redo"]])
+
+(defn- units-toggle
+  [units]
+  [ant/radio-group {:value units
+                    :on-change (fn [e]
+                                 (re-frame/dispatch [:change-units (keyword e.target.value)]))}
+   [ant/radio {:value :km} "km"]
+   [ant/radio {:value :miles} "miles"]])
 
 ;;
 ;; main component
 ;;
 (defn main-panel []
-  (let [name (re-frame/subscribe [::subs/name])
-        waypoints (re-frame/subscribe [::subs/waypoints])
+  (let [waypoints (re-frame/subscribe [::subs/waypoints])
         deleted-waypoints (re-frame/subscribe [::subs/deleted-waypoints])
-        total-distance (re-frame/subscribe [::subs/total-distance])]
+        total-distance (re-frame/subscribe [::subs/total-distance])
+        units (re-frame/subscribe [::subs/units])]
     [:div
-     [:h1 "Hello from " @name]
+     [:h1 "Plot a run"]
+     [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
-     [distance @total-distance]
+     [distance @total-distance @units]
      [route-operations-panel @waypoints @deleted-waypoints]]))

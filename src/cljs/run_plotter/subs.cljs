@@ -3,11 +3,6 @@
    [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- ::name
- (fn [db]
-   (:name db)))
-
-(re-frame/reg-sub
   ::waypoints
   (fn [db]
     (:waypoints db)))
@@ -21,3 +16,8 @@
   ::total-distance
   (fn [db]
     (:total-distance db)))
+
+(re-frame/reg-sub
+  ::units
+  (fn [db]
+    (:units db)))

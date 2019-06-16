@@ -42,3 +42,8 @@
       {:db (-> db
                (update :waypoints #(concat % [waypoint-to-add]))
                (update :deleted-waypoints butlast))})))
+
+(re-frame/reg-event-fx
+  :change-units
+  (fn [{:keys [db]} [_ units]]
+    {:db (assoc db :units units)}))

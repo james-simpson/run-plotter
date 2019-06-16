@@ -1,8 +1,8 @@
 (ns run-plotter.db)
 
 (def default-db
-  {:name "re-frame"
-   :waypoints []
+  {:waypoints []
    :deleted-waypoints []
    ; total route distance, in meters
-   :total-distance 0})
+   :total-distance 0
+   :units :km})
