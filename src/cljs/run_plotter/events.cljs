@@ -9,3 +9,8 @@
  ::initialize-db
  (fn-traced [_ _]
    db/default-db))
+
+(re-frame/reg-event-fx
+  :map-clicked
+  (fn [{:keys [db]} [_ lat lng]]
+    {:db (update db :waypoints #(conj % [lat lng]))}))

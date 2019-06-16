@@ -1,0 +1,1 @@
+var MAPBOX_TOKEN = "my-token"
