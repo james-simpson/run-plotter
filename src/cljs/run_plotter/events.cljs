@@ -14,3 +14,8 @@
   :map-clicked
   (fn [{:keys [db]} [_ lat lng]]
     {:db (update db :waypoints #(conj % [lat lng]))}))
+
+(re-frame/reg-event-fx
+  :distance-updated
+  (fn [{:keys [db]} [_ distance]]
+    {:db (assoc db :total-distance distance)}))

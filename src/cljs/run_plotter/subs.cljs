@@ -11,3 +11,8 @@
   ::waypoints
   (fn [db]
     (:waypoints db)))
+
+(re-frame/reg-sub
+  ::total-distance
+  (fn [db]
+    (:total-distance db)))

@@ -17986,7 +17986,6 @@
                             try {
                                 data = JSON.parse(resp.responseText);
                                 try {
-                                    console.log('Calling routeDone')
                                     return this._routeDone(data, wps, options, callback, context);
                                 } catch (ex) {
                                     console.log(ex)
@@ -18055,7 +18054,7 @@
 
                 // waypoints = response.waypoints
 
-                console.log("waypoints to use:", waypoints)
+//                console.log("waypoints to use:", waypoints)
     
                 actualWaypoints = this._toWaypoints(inputWaypoints, waypoints);
     
@@ -18074,7 +18073,6 @@
             },
     
             _convertRoute: function(responseRoute) {
-                console.log("called _convertRoute")
                 var result = {
                         name: '',
                         coordinates: [],
@@ -18107,7 +18105,6 @@
     
                 for (i = 0; i < legCount; i++) {
                     leg = responseRoute.legs[i];
-                    console.log("leg:", leg)
                     legNames.push(leg.summary && leg.summary.charAt(0).toUpperCase() + leg.summary.substring(1));
                     for (j = 0; j < leg.steps.length; j++) {
                         step = leg.steps[j];
@@ -18225,8 +18222,8 @@
             },
     
             _toWaypoints: function(inputWaypoints, vias) {
-                console.log("inputWaypoints:", inputWaypoints)
-                console.log("vias", vias)
+//                console.log("inputWaypoints:", inputWaypoints)
+//                console.log("vias", vias)
                 var wps = [],
                     i,
                     viaLoc;
@@ -18275,8 +18272,6 @@
             },
     
             _saveHintData: function(actualWaypoints, waypoints) {
-                console.log("actualWaypoints:", actualWaypoints)
-                console.log("waypoints:", waypoints)
                 var loc;
                 this._hints = {
                     locations: {}

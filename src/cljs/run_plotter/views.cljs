@@ -2,7 +2,9 @@
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
-    [reagent.core :as reagent]))
+    [reagent.core :as reagent]
+    [goog.object]
+    [goog.string :as gstring]))
 
 ; leaflet component
 (def ^:private mapbox-token js/MAPBOX_TOKEN)
@@ -27,24 +29,38 @@
                                            :waypoints waypoints
                                            :waypointMode "snap"
                                            :fitSelectedRoutes false})
-                                 js/L.Routing.control
-                                 (.addTo map))]
+                                 js/L.Routing.control)
+               _ (.addTo route-control map)]
            (reset! route-control-atom route-control)
            (.on map "click"
                 (fn [e]
                   (re-frame/dispatch [:map-clicked e.latlng.lat e.latlng.lng])))
-           (js/console.log route-control)))
+           (.on route-control "routesfound"
+                (fn [e]
+                  (let [total-distance (.-totalDistance (.-summary (first e.routes)))]
+                    (if (number? total-distance)
+                      (re-frame/dispatch [:distance-updated total-distance])))))
+           (js/console.log "control" @route-control-atom)))
 
        :component-did-update
        (fn [component]
-         (let [new-waypoints (:waypoints (reagent/props component))]
-           (print "leaflet-map-did-update" new-waypoints)
-           (.setWaypoints @route-control-atom (clj->js new-waypoints))))})))
+         (print "leaflet-map-did-update")
+         (let [new-waypoints (:waypoints (reagent/props component))
+               new-route-control (.setWaypoints @route-control-atom (clj->js new-waypoints))]
+           (js/console.log "updated control" new-route-control)
+           (reset! route-control-atom new-route-control)))})))
+
+(defn- distance
+  [value-in-meters]
+  (let [value-in-km (/ value-in-meters 1000)]
+    [:h2 (gstring/format "%.3f km" value-in-km)]))
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])
-        waypoints (re-frame/subscribe [::subs/waypoints])]
+        waypoints (re-frame/subscribe [::subs/waypoints])
+        total-distance (re-frame/subscribe [::subs/total-distance])]
     [:div
      [:h1 "Hello from " @name]
      [leaflet-map {:waypoints @waypoints}]
+     [distance @total-distance]
      ]))
