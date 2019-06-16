@@ -68,8 +68,8 @@
         value (if (= :miles units)
                 (* value-in-km 0.621371)
                 value-in-km)]
-
-    [:h2 (str (gstring/format "%.3f %s" value (name units)))]))
+    [:h2 {:style {:padding-top "10px"}}
+     (str (gstring/format "%.3f %s" value (name units)))]))
 
 (defn- route-operations-panel
   [waypoints deleted-waypoints]
@@ -86,6 +86,7 @@
 (defn- units-toggle
   [units]
   [ant/radio-group {:value units
+                    :style {:padding-bottom "10px"}
                     :on-change (fn [e]
                                  (re-frame/dispatch [:change-units (keyword e.target.value)]))}
    [ant/radio {:value :km} "km"]
@@ -99,7 +100,7 @@
         deleted-waypoints (re-frame/subscribe [::subs/deleted-waypoints])
         total-distance (re-frame/subscribe [::subs/total-distance])
         units (re-frame/subscribe [::subs/units])]
-    [:div
+    [:div {:style {:padding "25px"}}
      [:h1 "Plot a run"]
      [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
