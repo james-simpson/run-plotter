@@ -87,7 +87,11 @@
   []
   [:div
    [ant/button
-    {:on-click #(re-frame/dispatch [:plot-shortest-return-route])} "Plot shortest route back to start"]])
+    {:on-click #(re-frame/dispatch [:plot-shortest-return-route])}
+    "Back to start"]
+   [ant/button
+    {:on-click #(re-frame/dispatch [:plot-same-route-back])}
+    "Same route back"]])
 
 (defn- units-toggle
   [units]

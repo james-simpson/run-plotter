@@ -30,6 +30,13 @@
     {:db (update db :waypoints #(concat % [(first %)]))}))
 
 (re-frame/reg-event-fx
+  :plot-same-route-back
+  (undo/undoable "same route back")
+  (fn [{:keys [db]} _]
+    (let [return-waypoints (->> (:waypoints db) butlast reverse)]
+      {:db (update db :waypoints #(concat % return-waypoints))})))
+
+(re-frame/reg-event-fx
   :distance-updated
   (fn [{:keys [db]} [_ distance]]
     {:db (assoc db :total-distance distance)}))
