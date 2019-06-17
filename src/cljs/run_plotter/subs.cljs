@@ -8,11 +8,6 @@
     (:waypoints db)))
 
 (re-frame/reg-sub
-  ::deleted-waypoints
-  (fn [db]
-    (:deleted-waypoints db)))
-
-(re-frame/reg-sub
   ::total-distance
   (fn [db]
     (:total-distance db)))

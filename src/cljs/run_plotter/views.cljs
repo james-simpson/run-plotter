@@ -72,16 +72,16 @@
      (str (gstring/format "%.3f %s" value (name units)))]))
 
 (defn- route-operations-panel
-  [waypoints deleted-waypoints]
+  [undos? redos?]
   [:div
    [ant/button
     {:on-click #(re-frame/dispatch [:clear-route])} "Clear route"]
    [ant/button
-    {:on-click #(re-frame/dispatch [:undo-waypoint])
-     :disabled (empty? waypoints)} "Undo"]
+    {:on-click #(re-frame/dispatch [:undo])
+     :disabled (not undos?)} "Undo"]
    [ant/button
-    {:on-click #(re-frame/dispatch [:redo-waypoint])
-     :disabled (empty? deleted-waypoints)} "Redo"]])
+    {:on-click #(re-frame/dispatch [:redo])
+     :disabled (not redos?)} "Redo"]])
 
 (defn- units-toggle
   [units]
@@ -97,7 +97,10 @@
 ;;
 (defn main-panel []
   (let [waypoints (re-frame/subscribe [::subs/waypoints])
-        deleted-waypoints (re-frame/subscribe [::subs/deleted-waypoints])
+        ; the :undos? and :redos? subscriptions are added by the re-frame-undo
+        ; library, along with the :undo and :redo event handlers
+        undos? (re-frame/subscribe [:undos?])
+        redos? (re-frame/subscribe [:redos?])
         total-distance (re-frame/subscribe [::subs/total-distance])
         units (re-frame/subscribe [::subs/units])]
     [:div {:style {:padding "25px"}}
@@ -105,4 +108,4 @@
      [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
      [distance @total-distance @units]
-     [route-operations-panel @waypoints @deleted-waypoints]]))
+     [route-operations-panel @undos? @redos?]]))

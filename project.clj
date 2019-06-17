@@ -3,7 +3,9 @@
                  [org.clojure/clojurescript "1.10.520"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
+                 [day8.re-frame/undo "0.3.2"]
                  [antizer "0.3.1"]
+
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
                  [ring "1.7.1"]]
