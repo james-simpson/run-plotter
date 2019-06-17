@@ -16,3 +16,9 @@
   ::units
   (fn [db]
     (:units db)))
+
+(re-frame/reg-sub
+  ::offer-return-routes?
+  (fn [{:keys [waypoints]}]
+    (and (> (count waypoints) 1)
+         (not= (first waypoints) (last waypoints)))))

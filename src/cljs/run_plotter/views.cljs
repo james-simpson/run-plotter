@@ -84,13 +84,15 @@
      :disabled (not redos?)} "Redo"]])
 
 (defn- advanced-route-operations-panel
-  []
+  [offer-return-routes?]
   [:div
    [ant/button
-    {:on-click #(re-frame/dispatch [:plot-shortest-return-route])}
+    {:on-click #(re-frame/dispatch [:plot-shortest-return-route])
+     :disabled (not offer-return-routes?)}
     "Back to start"]
    [ant/button
-    {:on-click #(re-frame/dispatch [:plot-same-route-back])}
+    {:on-click #(re-frame/dispatch [:plot-same-route-back])
+     :disabled (not offer-return-routes?)}
     "Same route back"]])
 
 (defn- units-toggle
@@ -111,6 +113,7 @@
         ; library, along with the :undo and :redo event handlers
         undos? (re-frame/subscribe [:undos?])
         redos? (re-frame/subscribe [:redos?])
+        offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
         total-distance (re-frame/subscribe [::subs/total-distance])
         units (re-frame/subscribe [::subs/units])]
     [:div {:style {:padding "25px"}}
@@ -119,4 +122,4 @@
      [leaflet-map {:waypoints @waypoints}]
      [distance @total-distance @units]
      [route-operations-panel @undos? @redos?]
-     [advanced-route-operations-panel]]))
+     [advanced-route-operations-panel @offer-return-routes?]]))
