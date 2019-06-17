@@ -83,6 +83,12 @@
     {:on-click #(re-frame/dispatch [:redo])
      :disabled (not redos?)} "Redo"]])
 
+(defn- advanced-route-operations-panel
+  []
+  [:div
+   [ant/button
+    {:on-click #(re-frame/dispatch [:plot-shortest-return-route])} "Plot shortest route back to start"]])
+
 (defn- units-toggle
   [units]
   [ant/radio-group {:value units
@@ -108,4 +114,5 @@
      [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
      [distance @total-distance @units]
-     [route-operations-panel @undos? @redos?]]))
+     [route-operations-panel @undos? @redos?]
+     [advanced-route-operations-panel]]))

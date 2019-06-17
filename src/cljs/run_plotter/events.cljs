@@ -24,6 +24,12 @@
                    :total-distance 0)}))
 
 (re-frame/reg-event-fx
+  :plot-shortest-return-route
+  (undo/undoable "shortest return route")
+  (fn [{:keys [db]} _]
+    {:db (update db :waypoints #(concat % [(first %)]))}))
+
+(re-frame/reg-event-fx
   :distance-updated
   (fn [{:keys [db]} [_ distance]]
     {:db (assoc db :total-distance distance)}))
