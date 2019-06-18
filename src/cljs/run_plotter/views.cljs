@@ -4,8 +4,7 @@
     [run-plotter.subs :as subs]
     [reagent.core :as reagent]
     [goog.object]
-    [goog.string :as gstring]
-    [antizer.reagent :as ant]))
+    [goog.string :as gstring]))
 
 ;;
 ;; map component
@@ -81,7 +80,7 @@
         value (if (= :miles units)
                 (* value-in-km 0.621371)
                 value-in-km)]
-    [:h3.subtitle.is-3 {:style {:padding-top "20px"}}
+    [:h3.subtitle.is-3 {:style {:padding-top "1.5rem"}}
      (str (gstring/format "%.3f %s" value (name units)))]))
 
 (defn- route-operations-panel
@@ -106,18 +105,25 @@
     "Same route back"]])
 
 (defn- radio-input
-  [name value text]
+  [name value text checked]
   [:label.radio
-   [:input {:type "radio" :value value :name name}] text])
+   [:input {:type "radio" :value value :name name :checked checked}]
+   text])
+
+(defn- radio-buttons
+  [{:keys [name selected-value on-change options]}]
+  [:div.control {:on-change on-change}
+   (map (fn [[value text]]
+          (radio-input name value text (= value selected-value)))
+        options)])
 
 (defn- units-toggle
   [units]
-  [:div.control {:value units
-                 :style {:padding-bottom "10px"}
-                 :on-change (fn [e]
-                              (re-frame/dispatch [:change-units (keyword e.target.value)]))}
-   [radio-input "units" :km "km"]
-   [radio-input "units" :miles "miles"]])
+  (radio-buttons {:name "units"
+                  :selected-value units
+                  :options [[:km "km"] [:miles "miles"]]
+                  :on-change (fn [e]
+                               (re-frame/dispatch [:change-units (keyword e.target.value)]))}))
 
 (defn- navbar
   []
@@ -131,7 +137,8 @@
      [:a.navbar-item "Create a route"]
      [:a.navbar-item "Saved routes"]]
     [:div.navbar-end
-     [:a.navbar-item {:href "https://github.com/jsimpson-github/run-plotter"}
+     [:a.navbar-item {:href "https://github.com/jsimpson-github/run-plotter"
+                      :style {:margin-right "20px"}}
       [:img {:src "img/github-logo.svg"}]]]]])
 
 ;;
@@ -149,10 +156,6 @@
 
     [:div
      [navbar]
-     ;[ant/layout-header
-     ; [ant/menu {:mode "horizontal" :theme "dark" :style {:height "100%" :width "20%"}}
-     ;  [ant/menu-item "Create route"]
-     ;  [ant/menu-item "Saved routes"]]]
      [:div {:style {:padding "25px"}}
       [units-toggle @units]
       [leaflet-map {:waypoints @waypoints}]
