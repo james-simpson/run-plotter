@@ -1,0 +1,15 @@
+li.ant-menu-item {
+    min-width: 72px;
+    height: 64px;
+    font-size: 18px;
+    line-height: 60px;
+    border-top: 2px solid transparent;
+}
+
+.button-panel button {
+    margin-right: 6px;
+}
+
+.radio input {
+    margin-right: 5px;
+}

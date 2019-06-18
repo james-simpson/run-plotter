@@ -81,41 +81,58 @@
         value (if (= :miles units)
                 (* value-in-km 0.621371)
                 value-in-km)]
-    [:h2 {:style {:padding-top "10px"}}
+    [:h3.subtitle.is-3 {:style {:padding-top "20px"}}
      (str (gstring/format "%.3f %s" value (name units)))]))
 
 (defn- route-operations-panel
-  [undos? redos?]
-  [:div
-   [ant/button
+  [undos? redos? offer-return-routes?]
+  [:div.button-panel
+   [:button.button
     {:on-click #(re-frame/dispatch [:clear-route])} "Clear route"]
-   [ant/button
+   [:button.button
     {:on-click #(re-frame/dispatch [:undo])
      :disabled (not undos?)} "Undo"]
-   [ant/button
+   [:button.button
     {:on-click #(re-frame/dispatch [:redo])
-     :disabled (not redos?)} "Redo"]])
-
-(defn- advanced-route-operations-panel
-  [offer-return-routes?]
-  [:div
-   [ant/button
+     :disabled (not redos?)} "Redo"]
+   [:button.button
     {:on-click #(re-frame/dispatch [:plot-shortest-return-route])
+     :style {:margin-left "40px"}
      :disabled (not offer-return-routes?)}
     "Back to start"]
-   [ant/button
+   [:button.button
     {:on-click #(re-frame/dispatch [:plot-same-route-back])
      :disabled (not offer-return-routes?)}
     "Same route back"]])
 
+(defn- radio-input
+  [name value text]
+  [:label.radio
+   [:input {:type "radio" :value value :name name}] text])
+
 (defn- units-toggle
   [units]
-  [ant/radio-group {:value units
-                    :style {:padding-bottom "10px"}
-                    :on-change (fn [e]
-                                 (re-frame/dispatch [:change-units (keyword e.target.value)]))}
-   [ant/radio {:value :km} "km"]
-   [ant/radio {:value :miles} "miles"]])
+  [:div.control {:value units
+                 :style {:padding-bottom "10px"}
+                 :on-change (fn [e]
+                              (re-frame/dispatch [:change-units (keyword e.target.value)]))}
+   [radio-input "units" :km "km"]
+   [radio-input "units" :miles "miles"]])
+
+(defn- navbar
+  []
+  [:nav.navbar.is-info {:style {:height "60px"}}
+   [:div.navbar-brand
+    [:a.navbar-item {:style {:padding-left "20px"}}
+     [:img {:src "img/runner-icon.svg"
+            :style {:max-height "2em"}}]]]
+   [:div.navbar-menu
+    [:div.navbar-start
+     [:a.navbar-item "Create a route"]
+     [:a.navbar-item "Saved routes"]]
+    [:div.navbar-end
+     [:a.navbar-item {:href "https://github.com/jsimpson-github/run-plotter"}
+      [:img {:src "img/github-logo.svg"}]]]]])
 
 ;;
 ;; main component
@@ -129,10 +146,15 @@
         offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
         total-distance (re-frame/subscribe [::subs/total-distance])
         units (re-frame/subscribe [::subs/units])]
-    [:div {:style {:padding "25px"}}
-     [:h1 "Plot a run"]
-     [units-toggle @units]
-     [leaflet-map {:waypoints @waypoints}]
-     [distance @total-distance @units]
-     [route-operations-panel @undos? @redos?]
-     [advanced-route-operations-panel @offer-return-routes?]]))
+
+    [:div
+     [navbar]
+     ;[ant/layout-header
+     ; [ant/menu {:mode "horizontal" :theme "dark" :style {:height "100%" :width "20%"}}
+     ;  [ant/menu-item "Create route"]
+     ;  [ant/menu-item "Saved routes"]]]
+     [:div {:style {:padding "25px"}}
+      [units-toggle @units]
+      [leaflet-map {:waypoints @waypoints}]
+      [distance @total-distance @units]
+      [route-operations-panel @undos? @redos? @offer-return-routes?]]]))
