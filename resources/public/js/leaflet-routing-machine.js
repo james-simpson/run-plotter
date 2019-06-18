@@ -18043,12 +18043,13 @@
 
                 // todo - sort this out!!!
                 let waypoints = []
+                let lastWaypoint
                 for (var x = 0; x < response.waypoints.length; x++) {
                     let rWaypoint = response.waypoints[x]
-                    let duplicates = waypoints.filter(w => w.location[0] == rWaypoint.location[0]
-                                                        && w.location[1] == rWaypoint.location[1])
-                    if (duplicates.length == 0) {
+                    if (!lastWaypoint || (rWaypoint.location[0] != lastWaypoint.location[0]
+                                         && rWaypoint.location[1] != lastWaypoint.location[1])) {
                         waypoints.push(rWaypoint)
+                        lastWaypoint = rWaypoint
                     }
                 }
 

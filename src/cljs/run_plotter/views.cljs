@@ -20,6 +20,18 @@
                       (clj->js {:attribution "© OpenStreetMap contributors"}))
       (.addTo map)))
 
+(defn- on-create-marker
+  [waypoint-index waypoint total-waypoints]
+  (let [start-waypoint? (= waypoint-index 0)
+        last-waypoint? (= waypoint-index (dec total-waypoints))
+        draw-marker? (or start-waypoint? last-waypoint?)
+        marker-glyph (cond
+                       start-waypoint? "A"
+                       last-waypoint? "B")]
+    (if draw-marker?
+      (js/L.marker (.-latLng waypoint)
+                   (clj->js {:icon (js/L.icon.glyph (clj->js {:glyph marker-glyph}))})))))
+
 (defn- add-route-control
   [map waypoints]
   (let [router-options {:profile "mapbox/walking"
@@ -28,7 +40,8 @@
     (-> (clj->js {:router (js/L.Routing.mapbox mapbox-token (clj->js router-options))
                   :waypoints waypoints
                   :waypointMode "snap"
-                  :fitSelectedRoutes false})
+                  :fitSelectedRoutes false
+                  :createMarker on-create-marker})
         js/L.Routing.control
         (.addTo map))))
 
