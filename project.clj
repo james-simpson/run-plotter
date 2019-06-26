@@ -7,7 +7,8 @@
 
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
-                 [ring "1.7.1"]]
+                 [ring "1.7.1"]
+                 [cljs-http "0.1.46"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 

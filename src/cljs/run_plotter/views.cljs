@@ -1,10 +1,14 @@
 (ns run-plotter.views
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
     [reagent.core :as reagent]
     [goog.object]
-    [goog.string :as gstring]))
+    [goog.string :as gstring]
+    [clojure.string :as string]
+    [cljs-http.client :as http]
+    [cljs.core.async :refer [<!]]))
 
 ;;
 ;; map component
@@ -31,8 +35,21 @@
       (js/L.marker (.-latLng waypoint)
                    (clj->js {:icon (js/L.icon.glyph (clj->js {:glyph marker-glyph}))})))))
 
+; https://api.mapbox.com/matching/v5/mapbox/walking/-2.5956165790557866,51.43712266018087;-2.594457864761353,51.43662774047593;-2.5917220115661626,51.43644716032947;-2.593224048614502,51.43827299337256;-2.5948441028594975,51.43785165376345?overview=full&access_token=pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ
+(defn- waypoints->request
+  [waypoints]
+  (let [base-url "https://api.mapbox.com/matching/v5/mapbox/walking/"
+        waypoints-string (->> waypoints
+                              (map reverse)
+                              (map (partial string/join ","))
+                              (string/join ";"))]
+    (str base-url waypoints-string "?access_token=" js/MAPBOX_TOKEN "&tidy=true")))
+
 (defn- add-route-control
   [map waypoints]
+  ; todo - change to https://docs.mapbox.com/api/navigation/#map-matching to overcome 25 waypoint limit?
+  ; see https://github.com/perliedman/leaflet-routing-machine/issues/491
+  ; and https://stackoverflow.com/questions/37345416/how-to-use-osrm-match-api-in-leaflet-to-draw-a-route/37352229#37352229
   (let [router-options {:profile "mapbox/walking"
                         :routingOptions {:geometryOnly true
                                          :simplifyGeometry false}}]
@@ -45,34 +62,61 @@
         (.addTo map))))
 
 (defn- map-did-mount
-  [route-control-atom component]
+  [map-atom component]
   (let [{:keys [waypoints]} (reagent/props component)
         initial-lat-lng #js [51.437382 -2.590950]
         map (.setView (.map js/L "map") initial-lat-lng 17)
         _ (draw-tile-layer map)
-        route-control (add-route-control map waypoints)]
-    (reset! route-control-atom route-control)
+        ;route-control (add-route-control map waypoints)
+        ]
+    (reset! map-atom map)
+    ;(reset! route-control-atom route-control)
     (.on map "click"
          (fn [e]
            (re-frame/dispatch [:map-clicked e.latlng.lat e.latlng.lng])))
-    (.on route-control "routesfound"
-         (fn [e]
-           (let [total-distance (-> e .-routes first .-summary .-totalDistance)]
-             (if (number? total-distance)
-               (re-frame/dispatch [:distance-updated total-distance])))))))
+    ;(.on route-control "routesfound"
+    ;     (fn [e]
+    ;       (let [total-distance (-> e .-routes first .-summary .-totalDistance)]
+    ;         (if (number? total-distance)
+    ;           (re-frame/dispatch [:distance-updated total-distance])))))
+    ))
+
+(def last-polylines-atom (reagent/atom []))
+
+(defn- redraw-route!
+  [leaflet-map waypoints]
+  (print "redrawing" waypoints)
+  (if (> (count waypoints) 1)
+    (go (let [response (<! (http/get (waypoints->request waypoints) {:with-credentials? false}))
+              matchings (->> response :body :matchings)
+              polylines (->> matchings
+                             (map :geometry)
+                             (map #(js/L.polyline (js/polyline.decode %))))
+              prev-polylines @last-polylines-atom]
+          (js/console.log "prev:" prev-polylines)
+          (doseq [p polylines]
+            (js/console.log "adding polyline:" p)
+            (.addTo p leaflet-map))
+          (if (not-empty prev-polylines)
+            (.removeLayer leaflet-map (first prev-polylines)))
+          (reset! last-polylines-atom polylines)))
+
+    (if (not-empty @last-polylines-atom)
+      (.removeLayer leaflet-map (first @last-polylines-atom)))))
 
 (defn- map-did-update
-  [route-control-atom component]
-  (let [new-waypoints (:waypoints (reagent/props component))
-        new-route-control (.setWaypoints @route-control-atom (clj->js new-waypoints))]
-    (reset! route-control-atom new-route-control)))
+  [map-atom component]
+  (print "component updated")
+  (let [new-waypoints (:waypoints (reagent/props component))]
+    (redraw-route! @map-atom new-waypoints)))
 
 (defn- leaflet-map []
-  (let [route-control-atom (reagent/atom {})]
+  (let [route-control-atom (reagent/atom {})
+        map-atom (reagent/atom {})]
     (reagent/create-class
       {:reagent-render (fn [] [:div#map {:style {:height "500px"}}])
-       :component-did-mount (partial map-did-mount route-control-atom)
-       :component-did-update (partial map-did-update route-control-atom)})))
+       :component-did-mount (partial map-did-mount map-atom)
+       :component-did-update (partial map-did-update map-atom)})))
 
 (defn- distance
   [value-in-meters units]
