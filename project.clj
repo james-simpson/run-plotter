@@ -7,7 +7,14 @@
 
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
-                 [ring "1.7.1"]]
+                 [ring "1.7.1"]
+                 [ragtime "0.8.0"]
+                 [integrant "0.7.0"]
+                 [aero "1.1.3"]
+                 [duct/module.sql "0.5.0"]
+                 [org.postgresql/postgresql "42.2.5"]
+                 [com.layerware/hugsql "0.4.9"]
+                 [honeysql "0.9.4"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 
@@ -24,7 +31,11 @@
   {:dev
    {:dependencies [[binaryage/devtools "0.9.10"]
                    [day8.re-frame/re-frame-10x "0.4.0"]
-                   [day8.re-frame/tracing "0.5.1"]]
+                   [day8.re-frame/tracing "0.5.1"]
+                   [ring/ring-mock "0.4.0"]
+                   [bigsy/pg-embedded-clj "0.0.8"]
+                   [integrant/repl "0.3.1"]
+                   [clj-http "3.9.1"]]
 
     :plugins      [[lein-figwheel "0.5.18"]]}
    :prod { :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}

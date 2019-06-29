@@ -1,9 +1,12 @@
 (ns run-plotter.server
-  (:require [run-plotter.handler :refer [handler]]
-            [config.core :refer [env]]
-            [ring.adapter.jetty :refer [run-jetty]])
-  (:gen-class))
+  (:require
+    [ring.adapter.jetty :as jetty]
+    [integrant.core :as ig]))
 
- (defn -main [& args]
-   (let [port (Integer/parseInt (or (env :port) "3000"))]
-     (run-jetty handler {:port port :join? false})))
+(defmethod ig/init-key ::server
+  [_ {:keys [handler port]}]
+  (jetty/run-jetty handler {:port port :join? false}))
+
+(defmethod ig/halt-key! ::server
+  [_ server]
+  (.stop server))

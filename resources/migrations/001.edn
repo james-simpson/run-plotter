@@ -1,0 +1,7 @@
+{:up   ["CREATE TABLE routes (
+            id         SERIAL       PRIMARY KEY,
+            name       VARCHAR(100) NULL,
+            distance   decimal      NOT NULL
+            route_json json         NOT NULL
+         );"]
+ :down ["DROP TABLE routes;"]}
