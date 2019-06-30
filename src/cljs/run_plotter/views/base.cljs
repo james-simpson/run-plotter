@@ -29,5 +29,5 @@
      [:div {:style {:padding "25px"}}
       (case @active-panel
         :edit-route [edit-route-panel]
-        :saved-routes [:h1 "Saved routes"]
+        :saved-routes [:h3 "Saved routes"]
         [edit-route-panel])]]))

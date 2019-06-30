@@ -21,6 +21,8 @@
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 
+  :main run-plotter.core
+
   :min-lein-version "2.5.3"
 
   :source-paths ["src/clj" "src/cljs"]

@@ -12,6 +12,9 @@
   [db-spec]
   (defroutes
     routes
+    (GET "/" [] (resource-response "index.html" {:root "public"}))
+    (resources "/")
+
     (GET "/ping" [] "pong")
 
     (GET "/routes" []

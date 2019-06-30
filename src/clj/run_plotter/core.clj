@@ -1,4 +1,12 @@
 (ns run-plotter.core
-  (:require [integrant.core :as ig]
-            [duct.core.resource]))
+  (:require
+    [run-plotter.config :as config]
+    [integrant.core :as ig])
+  (:gen-class))
+
+(defn -main
+  []
+  (let [conf (config/read-config)]
+    (ig/load-namespaces conf)
+    (ig/init conf)))
 
