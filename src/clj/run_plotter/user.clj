@@ -24,13 +24,13 @@
 (comment
   (start)
 
-  (def db-conn (:spec (:duct.database.sql/hikaricp ig-state/system)))
+  (def db-spec (get-in ig-state/system [:duct.database.sql/hikaricp :spec]))
 
-  (def route-id (db/insert-route! db-conn "Bristol 10k" 10000 [[60.1 70.2]
+  (def route-id (db/insert-route! db-spec "Bristol 10k" 10000 [[60.1 70.2]
                                                                [60.2 70.3]
                                                                [60.3 70.4]]))
 
-  (db/get-route db-conn route-id)
-  (db/get-all-routes db-conn)
+  (db/get-route db-spec route-id)
+  (db/get-all-routes db-spec)
 
   (stop))

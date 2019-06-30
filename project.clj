@@ -8,6 +8,7 @@
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
                  [ring "1.7.1"]
+                 [ring/ring-json "0.4.0"]
                  [ragtime "0.8.0"]
                  [integrant "0.7.0"]
                  [aero "1.1.3"]

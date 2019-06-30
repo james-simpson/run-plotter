@@ -4,12 +4,12 @@
 (hugsql/def-db-fns "queries.sql")
 
 (defn get-all-routes
-  [db-conn]
-  (sql-select-all-routes db-conn))
+  [db-spec]
+  (sql-select-all-routes db-spec))
 
 (defn get-route
-  [db-conn id]
-  (let [query-result (sql-select-route db-conn {:id id})
+  [db-spec id]
+  (let [query-result (sql-select-route db-spec {:id id})
         route (-> query-result first (select-keys [:id :name :distance]))
         waypoints (->> query-result
                        (sort-by :waypoint_order)
@@ -17,15 +17,17 @@
     (assoc route :waypoints waypoints)))
 
 (defn insert-route!
-  [db-conn name distance waypoints]
-  (let [route-id (->> (sql-insert-route db-conn {:name name
+  [db-spec name distance waypoints]
+  (let [route-id (->> (sql-insert-route db-spec {:name name
                                                  :distance distance})
                       first
                       :id)
         waypoints-to-insert (map-indexed
                               (fn [index [lat lng]] [route-id index lat lng])
                               waypoints)]
-    (sql-insert-waypoints db-conn {:waypoints waypoints-to-insert})
+    (sql-insert-waypoints db-spec {:waypoints waypoints-to-insert})
     route-id))
 
-
+(defn delete-route!
+  [db-spec id]
+  (sql-delete-route! db-spec {:id id}))

@@ -32,7 +32,7 @@
             distance   INTEGER NOT NULL
         );"
        "CREATE TABLE waypoints (
-            route_id       INTEGER REFERENCES routes (id),
+            route_id       INTEGER REFERENCES routes (id) ON DELETE CASCADE,
             waypoint_order INTEGER,
             lat            DECIMAL,
             lng            DECIMAL

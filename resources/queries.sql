@@ -20,3 +20,9 @@ where id = :id;
 -- :name sql-select-all-routes
 -- :doc Select all routes
 select * from routes
+
+-- :name sql-delete-route!
+-- :doc Delete a route
+-- :command :execute
+delete from routes
+where id = :id;
