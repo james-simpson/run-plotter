@@ -54,12 +54,12 @@
     (reset! route-control-atom route-control)
     (.on map "click"
          (fn [e]
-           (re-frame/dispatch [:map-clicked e.latlng.lat e.latlng.lng])))
+           (re-frame/dispatch [:add-waypoint e.latlng.lat e.latlng.lng])))
     (.on route-control "routesfound"
          (fn [e]
-           (let [total-distance (-> e .-routes first .-summary .-totalDistance)]
-             (if (number? total-distance)
-               (re-frame/dispatch [:distance-updated total-distance])))))))
+           (let [distance (-> e .-routes first .-summary .-totalDistance)]
+             (if (number? distance)
+               (re-frame/dispatch [:distance-updated distance])))))))
 
 (defn- map-did-update
   [route-control-atom component]
@@ -74,7 +74,7 @@
        :component-did-mount (partial map-did-mount route-control-atom)
        :component-did-update (partial map-did-update route-control-atom)})))
 
-(defn- distance
+(defn- distance-panel
   [value-in-meters units]
   (let [value-in-km (/ value-in-meters 1000)
         value (if (= :miles units)
@@ -86,6 +86,8 @@
 (defn- route-operations-panel
   [undos? redos? offer-return-routes?]
   [:div.button-panel
+   [:button.button
+    {:on-click #(re-frame/dispatch [:save-route])} "Save route"]
    [:button.button
     {:on-click #(re-frame/dispatch [:clear-route])} "Clear route"]
    [:button.button
@@ -136,10 +138,10 @@
         undos? (re-frame/subscribe [:undos?])
         redos? (re-frame/subscribe [:redos?])
         offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
-        total-distance (re-frame/subscribe [::subs/total-distance])
+        distance (re-frame/subscribe [::subs/distance])
         units (re-frame/subscribe [::subs/units])]
     [:div
      [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
-     [distance @total-distance @units]
+     [distance-panel @distance @units]
      [route-operations-panel @undos? @redos? @offer-return-routes?]]))

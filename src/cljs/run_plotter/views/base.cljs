@@ -3,7 +3,8 @@
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
     [run-plotter.routes :as routes]
-    [run-plotter.views.edit-route :refer [edit-route-panel]]))
+    [run-plotter.views.edit-route :refer [edit-route-panel]]
+    [run-plotter.views.saved-routes :refer [saved-routes-panel]]))
 
 (defn- navbar
   []
@@ -29,5 +30,5 @@
      [:div {:style {:padding "25px"}}
       (case @active-panel
         :edit-route [edit-route-panel]
-        :saved-routes [:h3 "Saved routes"]
+        :saved-routes [saved-routes-panel]
         [edit-route-panel])]]))

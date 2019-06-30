@@ -6,6 +6,7 @@
                  [day8.re-frame/undo "0.3.2"]
                  [kibu/pushy "0.3.8"]
                  [bidi "2.1.6"]
+                 [cljs-http "0.1.46"]
 
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]

@@ -1,6 +1,9 @@
 (ns run-plotter.subs
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-   [re-frame.core :as re-frame]))
+    [re-frame.core :as re-frame]
+    [cljs-http.client :as http]
+    [cljs.core.async :refer [<!]]))
 
 (re-frame/reg-sub
   ::active-panel
@@ -10,12 +13,12 @@
 (re-frame/reg-sub
   ::waypoints
   (fn [db]
-    (:waypoints db)))
+    (get-in db [:route :waypoints])))
 
 (re-frame/reg-sub
-  ::total-distance
+  ::distance
   (fn [db]
-    (:total-distance db)))
+    (get-in db [:route :distance])))
 
 (re-frame/reg-sub
   ::units
@@ -24,6 +27,14 @@
 
 (re-frame/reg-sub
   ::offer-return-routes?
-  (fn [{:keys [waypoints]}]
+  (fn [{{:keys [waypoints]} :route}]
     (and (> (count waypoints) 1)
          (not= (first waypoints) (last waypoints)))))
+
+; todo - make this configurable
+(def ^:private api-base-url "http://localhost:3000")
+
+(re-frame/reg-sub
+  ::saved-routes
+  (fn [db]
+    (:saved-routes db)))

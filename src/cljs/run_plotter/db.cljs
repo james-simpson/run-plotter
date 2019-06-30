@@ -2,16 +2,12 @@
 
 (def default-db
   {:active-panel :edit-route
+   :units :km
 
-   ;;
    ;; Saved routes panel
-   ;;
    :saved-routes []
 
-   ;;
    ;; Edit route panel
-   ;;
-   :waypoints []
-   ; total route distance, in meters
-   :total-distance 0
-   :units :km})
+   :route {:waypoints []
+           ; total route distance, in meters
+           :distance 0}})
