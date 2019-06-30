@@ -3,8 +3,9 @@
    [reagent.core :as reagent]
    [re-frame.core :as re-frame]
    [run-plotter.events :as events]
-   [run-plotter.views :as views]
+   [run-plotter.views.base :refer [base-view]]
    [run-plotter.config :as config]
+   [run-plotter.routes :as routes]
    ))
 
 
@@ -15,10 +16,11 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
-  (reagent/render [views/main-panel]
+  (reagent/render [base-view]
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
+  (routes/listen-for-url-changes!)
   (re-frame/dispatch-sync [::events/initialize-db])
   (dev-setup)
   (mount-root))

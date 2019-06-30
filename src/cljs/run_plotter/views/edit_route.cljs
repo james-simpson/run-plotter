@@ -1,4 +1,4 @@
-(ns run-plotter.views
+(ns run-plotter.views.edit-route
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
@@ -105,17 +105,21 @@
     "Same route back"]])
 
 (defn- radio-input
-  [name value text checked]
+  [name value selected-value text on-change]
+  ^{:key value}
   [:label.radio
-   [:input {:type "radio" :value value :name name :checked checked}]
+   [:input {:type "radio"
+            :value value
+            :name name
+            :checked (= value selected-value)
+            :on-change on-change}]
    text])
 
 (defn- radio-buttons
   [{:keys [name selected-value on-change options]}]
   [:div.control {:on-change on-change}
-   (map (fn [[value text]]
-          (radio-input name value text (= value selected-value)))
-        options)])
+   (for [[value text] options]
+     (radio-input name value selected-value text on-change))])
 
 (defn- units-toggle
   [units]
@@ -125,26 +129,7 @@
                   :on-change (fn [e]
                                (re-frame/dispatch [:change-units (keyword e.target.value)]))}))
 
-(defn- navbar
-  []
-  [:nav.navbar.is-info {:style {:height "60px"}}
-   [:div.navbar-brand
-    [:a.navbar-item {:style {:padding-left "20px"}}
-     [:img {:src "img/runner-icon.svg"
-            :style {:max-height "2em"}}]]]
-   [:div.navbar-menu
-    [:div.navbar-start
-     [:a.navbar-item "Create a route"]
-     [:a.navbar-item "Saved routes"]]
-    [:div.navbar-end
-     [:a.navbar-item {:href "https://github.com/jsimpson-github/run-plotter"
-                      :style {:margin-right "20px"}}
-      [:img {:src "img/github-logo.svg"}]]]]])
-
-;;
-;; main component
-;;
-(defn main-panel []
+(defn edit-route-panel []
   (let [waypoints (re-frame/subscribe [::subs/waypoints])
         ; the :undos? and :redos? subscriptions are added by the re-frame-undo
         ; library, along with the :undo and :redo event handlers
@@ -153,11 +138,8 @@
         offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
         total-distance (re-frame/subscribe [::subs/total-distance])
         units (re-frame/subscribe [::subs/units])]
-
     [:div
-     [navbar]
-     [:div {:style {:padding "25px"}}
-      [units-toggle @units]
-      [leaflet-map {:waypoints @waypoints}]
-      [distance @total-distance @units]
-      [route-operations-panel @undos? @redos? @offer-return-routes?]]]))
+     [units-toggle @units]
+     [leaflet-map {:waypoints @waypoints}]
+     [distance @total-distance @units]
+     [route-operations-panel @undos? @redos? @offer-return-routes?]]))
