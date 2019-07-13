@@ -20,7 +20,8 @@
     {:port 54321 :log-redirect nil}
     (fn []
       (try
-        (let [conf (config/read-config)]
+        (let [conf (-> (config/read-config)
+                       (assoc-in [:duct.database.sql/hikaricp :port-number] 54321))]
           (igr/set-prep! (constantly conf))
           (ig/load-namespaces conf)
           (igr/go))

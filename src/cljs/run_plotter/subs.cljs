@@ -32,7 +32,7 @@
          (not= (first waypoints) (last waypoints)))))
 
 ; todo - make this configurable
-(def ^:private api-base-url "http://localhost:3000")
+(def ^:private api-base-url "http://localhost:3449")
 
 (re-frame/reg-sub
   ::saved-routes

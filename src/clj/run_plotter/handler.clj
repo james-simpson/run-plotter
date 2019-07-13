@@ -1,20 +1,15 @@
 (ns run-plotter.handler
   (:require [compojure.core :refer [GET POST DELETE defroutes]]
-            [compojure.route :refer [resources]]
+            [compojure.route :refer [resources not-found]]
             [integrant.core :as ig]
             [ring.util.response :refer [resource-response]]
-            [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
             [run-plotter.db :as db]))
-
 
 (defn ->routes
   [db-spec]
   (defroutes
     routes
-    (GET "/" [] (resource-response "index.html" {:root "public"}))
-    (resources "/")
-
     (GET "/ping" [] "pong")
 
     (GET "/routes" []
@@ -35,12 +30,9 @@
     (DELETE "/routes/:id" [id]
       {:status 200
        :body (->> (Integer/parseInt id)
-                  (db/delete-route! db-spec))})))
+                  (db/delete-route! db-spec))})
 
-(defroutes dev-routes
-           (GET "/ping" [] "pong"))
-
-(def dev-handler (-> #'dev-routes wrap-reload))
+    (GET "*" [] (resource-response "index.html" {:root "public"}))))
 
 (defmethod ig/init-key ::handler
   [_ {:keys [db-client]}]

@@ -31,7 +31,7 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
   :figwheel {:css-dirs ["resources/public/css"]
-             :ring-handler run-plotter.handler/dev-handler}
+             :ring-handler run-plotter.user/figwheel-handler}
 
   :profiles
   {:dev

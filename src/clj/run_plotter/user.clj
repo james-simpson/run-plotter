@@ -5,8 +5,17 @@
     [integrant.repl :as igr]
     [integrant.repl.state :as ig-state]
     [pg-embedded-clj.core :as pg-embedded]
+    [ring.middleware.reload :refer [wrap-reload]]
     [run-plotter.db :as db]
     [duct.core.resource]))
+
+(def figwheel-handler
+  (let [handler-key :run-plotter.handler/handler
+        conf (config/read-config)]
+    (ig/load-namespaces conf [handler-key])
+    (-> (ig/init conf [handler-key])
+        (get handler-key)
+        wrap-reload)))
 
 (defn- start
   []

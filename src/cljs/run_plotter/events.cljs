@@ -25,7 +25,7 @@
     {:db (update-in db [:route :waypoints] #(concat % [[lat lng]]))}))
 
 ; todo - make this configurable
-(def ^:private api-base-url "http://localhost:3000")
+(def ^:private api-base-url "http://localhost:3449")
 
 (defn- get-routes
   []
@@ -41,6 +41,10 @@
                                     {:json-params route}))]
         (prn "Response to post:" (:body response)))))
 
+(defn- delete-route!
+  [id]
+  (go (<! (http/delete (str api-base-url "/routes/" id)))))
+
 (re-frame/reg-event-fx
   ::load-saved-routes
   (fn [{:keys [db]} _]
@@ -55,8 +59,15 @@
 (re-frame/reg-event-fx
   :save-route
   (fn [{:keys [db]} _]
-    (print "posting route" (clj->js (:route db)))
     (post-route! (:route db))
+    (re-frame/dispatch [::load-saved-routes])
+    {:db db}))
+
+(re-frame/reg-event-fx
+  :delete-route
+  (fn [{:keys [db]} [_ id]]
+    (delete-route! id)
+    (re-frame/dispatch [::load-saved-routes])
     {:db db}))
 
 (re-frame/reg-event-fx

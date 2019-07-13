@@ -18,7 +18,7 @@
   :server-name #or [#env DB_SERVER "localhost"]
   :username #or [#env DB_USERNAME "postgres"]
   :password #or [#env DB_PASSWORD "postgres"]
-  :port-number #long #or [#env DB_PORT 54321]}
+  :port-number #long #or [#env DB_PORT 5432]}
 
  :duct.migrator/ragtime
  {:database #ig/ref :duct.database.sql/hikaricp

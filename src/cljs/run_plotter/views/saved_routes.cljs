@@ -9,4 +9,9 @@
      [:h1 "Saved routes here"]
      (for [{:keys [id name distance]} @routes]
        ^{:key id}
-       [:div (str "Route " id ", distance " distance)])]))
+       [:div.columns
+        [:div.column (str "Route " id ", distance " distance)]
+        [:div.column
+         [:button
+          {:on-click (fn [_] (re-frame/dispatch [:delete-route id]))}
+          "X"]]])]))
