@@ -10,16 +10,17 @@
 (defn get-route
   [db-spec id]
   (let [query-result (sql-select-route db-spec {:id id})
-        route (-> query-result first (select-keys [:id :name :distance]))
+        route (-> query-result first (select-keys [:id :name :distance :polyline]))
         waypoints (->> query-result
                        (sort-by :waypoint_order)
                        (map (fn [{:keys [lat lng]}] [lat lng])))]
     (assoc route :waypoints waypoints)))
 
 (defn insert-route!
-  [db-spec name distance waypoints]
+  [db-spec {:keys [name distance polyline waypoints]}]
   (let [route-id (->> (sql-insert-route db-spec {:name name
-                                                 :distance distance})
+                                                 :distance distance
+                                                 :polyline polyline})
                       first
                       :id)
         waypoints-to-insert (map-indexed

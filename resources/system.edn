@@ -29,7 +29,8 @@
  {:up ["CREATE TABLE routes (
             id         SERIAL  PRIMARY KEY,
             name       TEXT    NULL,
-            distance   INTEGER NOT NULL
+            distance   INTEGER NOT NULL,
+            polyline   TEXT    NOT NULL
         );"
        "CREATE TABLE waypoints (
             route_id       INTEGER REFERENCES routes (id) ON DELETE CASCADE,

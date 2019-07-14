@@ -32,7 +32,7 @@
   (go (let [response (<! (http/get (str api-base-url "/routes")
                                    {:as :json}))
             routes (:body response)]
-        (print  "GET response" response)
+        (print  "GET response" routes)
         (re-frame/dispatch [:set-saved-routes routes]))))
 
 (defn- post-route!
@@ -95,9 +95,10 @@
                       #(concat % return-waypoints))})))
 
 (re-frame/reg-event-fx
-  :distance-updated
-  (fn [{:keys [db]} [_ distance]]
-    {:db (assoc-in db [:route :distance] distance)}))
+  :route-updated
+  (fn [{:keys [db]} [_ {:keys [distance polyline]}]]
+    {:db (update db :route #(assoc % :distance distance
+                                     :polyline polyline))}))
 
 (re-frame/reg-event-fx
   :change-units

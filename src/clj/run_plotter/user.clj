@@ -10,12 +10,10 @@
     [duct.core.resource]))
 
 (def figwheel-handler
-  (let [handler-key :run-plotter.handler/handler
-        conf (config/read-config)]
-    (ig/load-namespaces conf [handler-key])
-    (-> (ig/init conf [handler-key])
-        (get handler-key)
-        wrap-reload)))
+  (let [conf (config/read-config)]
+    (ig/load-namespaces conf)
+    (-> (ig/init conf)
+        :run-plotter.handler/handler)))
 
 (defn- start
   []

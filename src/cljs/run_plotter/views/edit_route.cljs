@@ -4,7 +4,8 @@
     [run-plotter.subs :as subs]
     [reagent.core :as reagent]
     [goog.object]
-    [goog.string :as gstring]))
+    [goog.string :as gstring]
+    [com.michaelgaare.clojure-polyline :as polyline]))
 
 ;;
 ;; map component
@@ -48,18 +49,23 @@
   [route-control-atom component]
   (let [{:keys [waypoints]} (reagent/props component)
         initial-lat-lng #js [51.437382 -2.590950]
-        map (.setView (.map js/L "map") initial-lat-lng 17)
-        _ (draw-tile-layer map)
-        route-control (add-route-control map waypoints)]
+        leaflet-map (.setView (.map js/L "map") initial-lat-lng 17)
+        _ (draw-tile-layer leaflet-map)
+        route-control (add-route-control leaflet-map waypoints)]
     (reset! route-control-atom route-control)
-    (.on map "click"
+    (.on leaflet-map "click"
          (fn [e]
            (re-frame/dispatch [:add-waypoint e.latlng.lat e.latlng.lng])))
     (.on route-control "routesfound"
          (fn [e]
-           (let [distance (-> e .-routes first .-summary .-totalDistance)]
+           (let [route (-> e .-routes first)
+                 distance (-> route .-summary .-totalDistance)
+                 encoded-polyline (->> (.-coordinates route)
+                                       (map #(vector (.-lat %) (.-lng %)))
+                                       polyline/encode)]
              (if (number? distance)
-               (re-frame/dispatch [:distance-updated distance])))))))
+               (re-frame/dispatch [:route-updated {:distance distance
+                                                   :polyline encoded-polyline}])))))))
 
 (defn- map-did-update
   [route-control-atom component]

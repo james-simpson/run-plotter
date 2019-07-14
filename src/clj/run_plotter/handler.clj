@@ -17,8 +17,8 @@
        :body (db/get-all-routes db-spec)})
 
     (POST "/routes" req
-      (let [{:keys [name distance waypoints]} (:body req)
-            route-id (db/insert-route! db-spec name distance waypoints)]
+      (let [route (:body req)
+            route-id (db/insert-route! db-spec route)]
         {:status 201
          :body {:id route-id}}))
 

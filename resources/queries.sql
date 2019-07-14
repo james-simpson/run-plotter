@@ -1,8 +1,8 @@
 -- :name sql-insert-route
 -- :doc Insert a route
 -- :command :returning-execute
-insert into routes (name, distance)
-values (:name, :distance)
+insert into routes (name, distance, polyline)
+values (:name, :distance, :polyline)
 returning id;
 
 -- :name sql-insert-waypoints

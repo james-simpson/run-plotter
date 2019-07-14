@@ -7,6 +7,7 @@
                  [kibu/pushy "0.3.8"]
                  [bidi "2.1.6"]
                  [cljs-http "0.1.46"]
+                 [io.jesi/clojure-polyline "0.4.1"]
 
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]

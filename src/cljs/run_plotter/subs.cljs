@@ -1,9 +1,6 @@
 (ns run-plotter.subs
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-    [re-frame.core :as re-frame]
-    [cljs-http.client :as http]
-    [cljs.core.async :refer [<!]]))
+    [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
   ::active-panel
@@ -31,10 +28,8 @@
     (and (> (count waypoints) 1)
          (not= (first waypoints) (last waypoints)))))
 
-; todo - make this configurable
-(def ^:private api-base-url "http://localhost:3449")
-
 (re-frame/reg-sub
   ::saved-routes
   (fn [db]
+    (print "saved routes" (:saved-routes db))
     (:saved-routes db)))

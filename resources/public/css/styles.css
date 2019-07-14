@@ -5,3 +5,7 @@
 .radio input {
     margin-right: 5px;
 }
+
+.saved-route-column:hover {
+    background-color: #72bcec;
+}
