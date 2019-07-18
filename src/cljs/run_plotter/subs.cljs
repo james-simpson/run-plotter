@@ -31,5 +31,4 @@
 (re-frame/reg-sub
   ::saved-routes
   (fn [db]
-    (print "saved routes" (:saved-routes db))
     (:saved-routes db)))

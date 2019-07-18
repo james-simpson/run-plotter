@@ -32,7 +32,6 @@
   (go (let [response (<! (http/get (str api-base-url "/routes")
                                    {:as :json}))
             routes (:body response)]
-        (print  "GET response" routes)
         (re-frame/dispatch [:set-saved-routes routes]))))
 
 (defn- post-route!
