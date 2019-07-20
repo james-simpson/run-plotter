@@ -22,3 +22,7 @@
 .saved-route-column .delete {
     display: none;
 }
+
+.leaflet-control-container {
+    display: none;
+}
