@@ -1,6 +1,6 @@
 - Fix initial zoom of saved routes map
-- Dotted lines for saved routes?
-- Sort out atoms
-- Add name when saving route
 - Display saved route name & distance nicely
+- Add successful save/delete popups
+- Reload saved routes when route added/deleted
+- Add name when saving route
 - Open/edit saved route

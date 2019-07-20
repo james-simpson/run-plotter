@@ -2,9 +2,9 @@
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
+    [run-plotter.utils :as utils]
     [reagent.core :as reagent]
     [goog.object]
-    [goog.string :as gstring]
     [com.michaelgaare.clojure-polyline :as polyline]))
 
 ;;
@@ -82,12 +82,8 @@
 
 (defn- distance-panel
   [value-in-meters units]
-  (let [value-in-km (/ value-in-meters 1000)
-        value (if (= :miles units)
-                (* value-in-km 0.621371)
-                value-in-km)]
-    [:h3.subtitle.is-3 {:style {:padding-top "1.5rem"}}
-     (str (gstring/format "%.3f %s" value (name units)))]))
+  [:h3.subtitle.is-3 {:style {:padding-top "1.5rem"}}
+   (utils/format-distance value-in-meters units 3)])
 
 (defn- route-operations-panel
   [undos? redos? offer-return-routes?]

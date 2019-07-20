@@ -2,6 +2,7 @@
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.subs :as subs]
+    [run-plotter.utils :as utils]
     [reagent.core :as reagent]
     [com.michaelgaare.clojure-polyline :as polyline]))
 
@@ -64,6 +65,7 @@
     (fn render-fn []
       (let [on-map-render #(reset! map-atom %)
             routes (re-frame/subscribe [::subs/saved-routes])
+            units (re-frame/subscribe [::subs/units])
             polylines-by-id (reduce (fn [polylines {:keys [id] :as route}]
                                       (assoc polylines id (route->leaflet-polyline route)))
                                     {}
@@ -78,7 +80,7 @@
             ^{:key id}
             [:div.columns.saved-route-column
              {:on-mouse-over (fn [_] (highlight-polyline map-atom polylines-by-id id))}
-             [:div.column (str "Route " id ", distance " distance)]
+             [:div.column (str "Route " id ", distance " (utils/format-distance distance @units 1))]
              [:div.column
               [:button
                {:on-click (fn [_] (re-frame/dispatch [:delete-route id]))}
