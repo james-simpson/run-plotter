@@ -27,6 +27,7 @@
 ; todo - make this configurable
 (def ^:private api-base-url "http://localhost:3449")
 
+
 (defn- get-routes
   []
   (go (let [response (<! (http/get (str api-base-url "/routes")
@@ -56,11 +57,23 @@
     {:db (assoc db :saved-routes routes)}))
 
 (re-frame/reg-event-fx
-  :save-route
+  :initiate-save
+  (fn [{:keys [db]} _]
+    {:db (-> db
+             (assoc :save-in-progress? true)
+             (update :route #(dissoc % :name)))}))
+
+(re-frame/reg-event-fx
+  :cancel-save
+  (fn [{:keys [db]} _]
+    {:db (assoc db :save-in-progress? false)}))
+
+(re-frame/reg-event-fx
+  :confirm-save
   (fn [{:keys [db]} _]
     (post-route! (:route db))
     (re-frame/dispatch [::load-saved-routes])
-    {:db db}))
+    {:db (assoc db :save-in-progress? false)}))
 
 (re-frame/reg-event-fx
   :delete-route
@@ -98,6 +111,11 @@
   (fn [{:keys [db]} [_ {:keys [distance polyline]}]]
     {:db (update db :route #(assoc % :distance distance
                                      :polyline polyline))}))
+
+(re-frame/reg-event-fx
+  :route-name-updated
+  (fn [{:keys [db]} [_ name]]
+    {:db (assoc-in db [:route :name] name)}))
 
 (re-frame/reg-event-fx
   :change-units

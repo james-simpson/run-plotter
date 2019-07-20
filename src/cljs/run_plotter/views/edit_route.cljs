@@ -89,7 +89,7 @@
   [undos? redos? offer-return-routes?]
   [:div.button-panel
    [:button.button
-    {:on-click #(re-frame/dispatch [:save-route])} "Save route"]
+    {:on-click #(re-frame/dispatch [:initiate-save])} "Save route"]
    [:button.button
     {:on-click #(re-frame/dispatch [:clear-route])} "Clear route"]
    [:button.button
@@ -133,6 +133,30 @@
                   :on-change (fn [e]
                                (re-frame/dispatch [:change-units (keyword e.target.value)]))}))
 
+(defn- save-route-modal
+  [show-save-form? route-name]
+  (let [cancel-fn #(re-frame/dispatch [:cancel-save])
+        confirm-fn #(re-frame/dispatch [:confirm-save])]
+    [:div.modal {:style {:z-index 9999}
+                 :class (if show-save-form? "is-active" "")}
+     [:div.modal-background {:on-click cancel-fn}]
+     [:div.modal-card
+      [:header.modal-card-head
+       [:p.modal-card-title "Save route"]
+       [:button.delete {:aria-label "close"
+                        :on-click cancel-fn}]]
+      [:section.modal-card-body
+       [:input#routeNameInput.input
+        {:type "text"
+         :placeholder "Route name"
+         :style {:font-size "1.5em"}
+         :value route-name
+         :on-change (fn [e]
+                      (re-frame/dispatch [:route-name-updated e.target.value]))}]]
+      [:footer.modal-card-foot
+       [:button.button.is-info {:on-click confirm-fn} "Save changes"]
+       [:button.button {:on-click cancel-fn} "Cancel"]]]]))
+
 (defn edit-route-panel []
   (let [waypoints (re-frame/subscribe [::subs/waypoints])
         ; the :undos? and :redos? subscriptions are added by the re-frame-undo
@@ -141,9 +165,12 @@
         redos? (re-frame/subscribe [:redos?])
         offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
         distance (re-frame/subscribe [::subs/distance])
-        units (re-frame/subscribe [::subs/units])]
+        route-name (re-frame/subscribe [::subs/name])
+        units (re-frame/subscribe [::subs/units])
+        save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])]
     [:div
      [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
      [distance-panel @distance @units]
-     [route-operations-panel @undos? @redos? @offer-return-routes?]]))
+     [route-operations-panel @undos? @redos? @offer-return-routes?]
+     [save-route-modal @save-in-progress? @route-name]]))

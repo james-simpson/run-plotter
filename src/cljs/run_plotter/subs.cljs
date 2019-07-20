@@ -13,6 +13,11 @@
     (get-in db [:route :waypoints])))
 
 (re-frame/reg-sub
+  ::name
+  (fn [db]
+    (get-in db [:route :name])))
+
+(re-frame/reg-sub
   ::distance
   (fn [db]
     (get-in db [:route :distance])))
@@ -27,6 +32,11 @@
   (fn [{{:keys [waypoints]} :route}]
     (and (> (count waypoints) 1)
          (not= (first waypoints) (last waypoints)))))
+
+(re-frame/reg-sub
+  ::save-in-progress?
+  (fn [db _]
+    (:save-in-progress? db)))
 
 (re-frame/reg-sub
   ::saved-routes

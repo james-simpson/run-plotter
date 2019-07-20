@@ -80,7 +80,7 @@
             ^{:key id}
             [:div.columns.saved-route-column
              {:on-mouse-over (fn [_] (highlight-polyline map-atom polylines-by-id id))}
-             [:div.column (str "Route " id ", distance " (utils/format-distance distance @units 1))]
+             [:div.column (str id  ", " name ", " (utils/format-distance distance @units 2))]
              [:div.column
               [:button
                {:on-click (fn [_] (re-frame/dispatch [:delete-route id]))}

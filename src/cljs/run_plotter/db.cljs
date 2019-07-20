@@ -10,4 +10,6 @@
    ;; Edit route panel
    :route {:waypoints []
            ; total route distance, in meters
-           :distance 0}})
+           :distance 0}
+
+   :save-in-progress? false})
