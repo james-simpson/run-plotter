@@ -64,23 +64,23 @@
   (let [map-atom (atom nil)]
     (fn render-fn []
       (let [on-map-render #(reset! map-atom %)
-            routes (re-frame/subscribe [::subs/saved-routes])
-            units (re-frame/subscribe [::subs/units])
+            routes @(re-frame/subscribe [::subs/saved-routes])
+            units @(re-frame/subscribe [::subs/units])
             polylines-by-id (reduce (fn [polylines {:keys [id] :as route}]
                                       (assoc polylines id (route->leaflet-polyline route)))
                                     {}
-                                    @routes)]
+                                    routes)]
         [:div.columns
          [:div.column
           [map-component {:on-map-render on-map-render
                           :polylines (vals polylines-by-id)}]]
          [:div.column.is-one-third
-          [:h1.title.is-3 "Saved routes:"]
-          (for [{:keys [id name distance]} @routes]
+          [:h1.title.is-3 "Saved routes"]
+          (for [{:keys [id name distance]} routes]
             ^{:key id}
             [:div.columns.saved-route-column
              {:on-mouse-over (fn [_] (highlight-polyline map-atom polylines-by-id id))}
-             [:div.column (str name ", " (utils/format-distance distance @units 2))]
+             [:div.column (str name ", " (utils/format-distance distance units 2))]
              [:div.column
               [:button.delete
                {:on-click (fn [_] (re-frame/dispatch [:delete-route id]))}]]])]]))))

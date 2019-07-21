@@ -54,11 +54,11 @@
         route-control (add-route-control leaflet-map waypoints)]
     (reset! route-control-atom route-control)
     (.on leaflet-map "click"
-         (fn [e]
+         (fn [^js/mapClickEvent e]
            (re-frame/dispatch [:add-waypoint e.latlng.lat e.latlng.lng])))
     (.on route-control "routesfound"
-         (fn [e]
-           (let [route (-> e .-routes first)
+         (fn [^js/lrmRoutesFoundEvent e]
+           (let [^js/lrmRoute route (-> e .-routes first)
                  distance (-> route .-summary .-totalDistance)
                  encoded-polyline (->> (.-coordinates route)
                                        (map #(vector (.-lat %) (.-lng %)))

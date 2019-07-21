@@ -1,5 +1,5 @@
 - Fix initial zoom of saved routes map
-- Display saved route name & distance nicely
+- Nicer miles/km radio buttons
 - Add successful save/delete popups
 - Reload saved routes when route added/deleted
 - Add name when saving route

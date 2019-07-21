@@ -25,7 +25,7 @@
     {:db (update-in db [:route :waypoints] #(concat % [[lat lng]]))}))
 
 ; todo - make this configurable
-(def ^:private api-base-url "http://localhost:3449")
+(def ^:private api-base-url "http://localhost:3000")
 
 
 (defn- get-routes

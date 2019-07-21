@@ -8,6 +8,7 @@
                  [bidi "2.1.6"]
                  [cljs-http "0.1.46"]
                  [io.jesi/clojure-polyline "0.4.1"]
+                 ;[cljsjs/leaflet "1.5.1-0"]
 
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
@@ -57,30 +58,29 @@
 
   :cljsbuild
   {:builds
-   [{:id           "dev"
+   [{:id "dev"
      :source-paths ["src/cljs"]
-     :figwheel     {:on-jsload "run-plotter.core/mount-root"}
-     :compiler     {:main                 run-plotter.core
-                    :output-to            "resources/public/js/compiled/app.js"
-                    :output-dir           "resources/public/js/compiled/out"
-                    :asset-path           "js/compiled/out"
-                    :source-map-timestamp true
-                    :preloads             [devtools.preload
-                                           day8.re-frame-10x.preload]
-                    :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true
-                                           "day8.re_frame.tracing.trace_enabled_QMARK_" true}
-                    :external-config      {:devtools/config {:features-to-install :all}}
-                    }}
+     :figwheel {:on-jsload "run-plotter.core/mount-root"}
+     :compiler {:main run-plotter.core
+                :output-to "resources/public/js/compiled/app.js"
+                :output-dir "resources/public/js/compiled/out"
+                :asset-path "js/compiled/out"
+                :source-map-timestamp true
+                :preloads [devtools.preload
+                           day8.re-frame-10x.preload]
+                :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true
+                                  "day8.re_frame.tracing.trace_enabled_QMARK_" true}
+                :external-config {:devtools/config {:features-to-install :all}}
+                }}
 
-    {:id           "min"
+    {:id "min"
      :source-paths ["src/cljs"]
      :jar true
-     :compiler     {:main            run-plotter.core
-                    :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :advanced
-                    :closure-defines {goog.DEBUG false}
-                    :pretty-print    false}}
-
+     :compiler {:main run-plotter.core
+                :output-to "resources/public/js/compiled/app.js"
+                :optimizations :advanced
+                :externs ["resources/leaflet-externs.js" "resources/externs.js"]
+                :closure-defines {goog.DEBUG false}}}
 
     ]}
   )

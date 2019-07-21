@@ -10,6 +10,10 @@
   [db-spec]
   (defroutes
     routes
+    (GET "/" [] (resource-response "index.html" {:root "public"}))
+
+    (resources "/")
+
     (GET "/ping" [] "pong")
 
     (GET "/routes" []
@@ -32,7 +36,10 @@
        :body (->> (Integer/parseInt id)
                   (db/delete-route! db-spec))})
 
-    (GET "*" [] (resource-response "index.html" {:root "public"}))))
+    ;(not-found "Not found")
+
+    (GET "*" [] (resource-response "index.html" {:root "public"}))
+    ))
 
 (defmethod ig/init-key ::handler
   [_ {:keys [db-client]}]

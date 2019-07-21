@@ -13,6 +13,7 @@
 .saved-route-column:hover {
     background-color: #72bcec;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .saved-route-column:hover .delete {
@@ -23,6 +24,6 @@
     display: none;
 }
 
-.leaflet-control-container {
+.leaflet-control-container .leaflet-routing-container {
     display: none;
 }
