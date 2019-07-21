@@ -3,6 +3,7 @@
   (:require
     [re-frame.core :as re-frame]
     [run-plotter.db :as db]
+    [run-plotter.utils :as utils]
     [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
     [day8.re-frame.undo :as undo]
     [cljs-http.client :as http]
@@ -24,22 +25,22 @@
   (fn [{:keys [db]} [_ lat lng]]
     {:db (update-in db [:route :waypoints] #(concat % [[lat lng]]))}))
 
-; todo - make this configurable
 (def ^:private api-base-url "http://localhost:3000")
-
 
 (defn- get-routes
   []
   (go (let [response (<! (http/get (str api-base-url "/routes")
-                                   {:as :json}))
+                                   {:as :json
+                                    :with-credentials? false}))
             routes (:body response)]
         (re-frame/dispatch [:set-saved-routes routes]))))
 
 (defn- post-route!
   [route]
   (go (let [response (<! (http/post (str api-base-url "/routes")
-                                    {:json-params route}))]
-        (prn "Response to post:" (:body response)))))
+                                    {:json-params route
+                                     :with-credentials? false}))]
+        (re-frame/dispatch [:save-successful]))))
 
 (defn- delete-route!
   [id]
@@ -74,6 +75,12 @@
     (post-route! (:route db))
     (re-frame/dispatch [::load-saved-routes])
     {:db (assoc db :save-in-progress? false)}))
+
+(re-frame/reg-event-fx
+  :save-successful
+  (fn [{:keys [db]} _]
+    (utils/display-toast "Route saved")
+    {:db db}))
 
 (re-frame/reg-event-fx
   :delete-route

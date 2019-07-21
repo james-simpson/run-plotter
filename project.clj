@@ -14,6 +14,7 @@
                  [yogthos/config "1.1.2"]
                  [ring "1.7.1"]
                  [ring/ring-json "0.4.0"]
+                 [ring-cors "0.1.13"]
                  [ragtime "0.8.0"]
                  [integrant "0.7.0"]
                  [aero "1.1.3"]
@@ -79,7 +80,8 @@
      :compiler {:main run-plotter.core
                 :output-to "resources/public/js/compiled/app.js"
                 :optimizations :advanced
-                :externs ["resources/leaflet-externs.js" "resources/externs.js"]
+                :externs ["resources/leaflet.js"
+                          "resources/leaflet-routing-machine.js"]
                 :closure-defines {goog.DEBUG false}}}
 
     ]}
