@@ -22,6 +22,5 @@
 (defn ^:export init []
   (routes/listen-for-url-changes!)
   (re-frame/dispatch-sync [::events/initialize-db])
-  (re-frame/dispatch [::events/load-saved-routes])
   (dev-setup)
   (mount-root))

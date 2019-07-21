@@ -11,9 +11,3 @@
                  (* value-in-km 0.621371)
                  value-in-km)]
      (gstring/format (str "%." decimal-places "f %s") value (name units)))))
-
-(defn display-toast
-  [message]
-  (js/bulmaToast.toast #js {:message message
-                            :position "top-center"
-                            :type "is-success"}))
