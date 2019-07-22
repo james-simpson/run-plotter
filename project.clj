@@ -80,8 +80,8 @@
      :compiler {:main run-plotter.core
                 :output-to "resources/public/js/compiled/app.js"
                 :optimizations :advanced
-                :externs ["resources/leaflet.js"
-                          "resources/leaflet-routing-machine.js"]
+                :externs ["resources/externs/leaflet.js"
+                          "resources/externs/leaflet-routing-machine.js"]
                 :closure-defines {goog.DEBUG false}}}
 
     ]}

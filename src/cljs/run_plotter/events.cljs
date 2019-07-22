@@ -7,13 +7,13 @@
     [day8.re-frame.http-fx]
     [ajax.core :as ajax]))
 
+(def ^:private api-base-url "http://localhost:3000")
+
 (rf/reg-event-fx
   ::initialize-db
   (fn-traced [_ _]
              {:db db/default-db
               :dispatch [:load-saved-routes]}))
-
-(def ^:private api-base-url "http://localhost:3000")
 
 (rf/reg-event-db
   :set-active-panel

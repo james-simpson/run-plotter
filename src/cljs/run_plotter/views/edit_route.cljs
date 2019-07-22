@@ -108,31 +108,6 @@
      :disabled (not offer-return-routes?)}
     "Same route back"]])
 
-(defn- radio-input
-  [name value selected-value text on-change]
-  ^{:key value}
-  [:label.radio
-   [:input {:type "radio"
-            :value value
-            :name name
-            :checked (= value selected-value)
-            :on-change on-change}]
-   text])
-
-(defn- radio-buttons
-  [{:keys [name selected-value on-change options]}]
-  [:div.control {:on-change on-change}
-   (for [[value text] options]
-     (radio-input name value selected-value text on-change))])
-
-(defn- units-toggle
-  [units]
-  (radio-buttons {:name "units"
-                  :selected-value units
-                  :options [[:km "km"] [:miles "miles"]]
-                  :on-change (fn [e]
-                               (re-frame/dispatch [:change-units (keyword e.target.value)]))}))
-
 (defn- save-route-modal
   [show-save-form? route-name]
   (let [cancel-fn #(re-frame/dispatch [:cancel-save])
@@ -169,7 +144,6 @@
         units (re-frame/subscribe [::subs/units])
         save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])]
     [:div
-     [units-toggle @units]
      [leaflet-map {:waypoints @waypoints}]
      [distance-panel @distance @units]
      [route-operations-panel @undos? @redos? @offer-return-routes?]

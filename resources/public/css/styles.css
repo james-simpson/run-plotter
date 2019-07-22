@@ -6,6 +6,10 @@
     margin-right: 5px;
 }
 
+.is-checkradio[type=radio]+label::after, .is-checkradio[type=radio]+label:after {
+    background: white;
+}
+
 .saved-route-column {
     font-size: 1.3em;
 }

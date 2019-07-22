@@ -12,7 +12,6 @@
   (bidi/match-route routes url))
 
 (defn- dispatch-route [matched-route]
-  (print "change route to" matched-route)
   (let [panel-name (:handler matched-route)]
     (re-frame/dispatch [:set-active-panel panel-name])))
 

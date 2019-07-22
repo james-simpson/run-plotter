@@ -13,18 +13,18 @@ L.Routing = {
     mapbox: function() {}
 }
 
-lrmRoutesFoundEvent = {
+var lrmRoutesFoundEvent = {
     routes: {}
 }
 
-lrmRoute = {
+var lrmRoute = {
     coordinates: {},
     summary: {
         totalDistance: {}
     }
 }
 
-mapClickEvent = {
+var mapClickEvent = {
     latlng: {
         lat: {},
         lng: {}
