@@ -16,7 +16,7 @@
 
 (defn- draw-tile-layer
   [map]
-  (-> (js/L.tileLayer "http://{s}.tile.osm.org/{z}/{x}/{y}{r}.png"
+  (-> (js/L.tileLayer "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                       (clj->js {:attribution "© OpenStreetMap contributors"}))
       (.addTo map)))
 
