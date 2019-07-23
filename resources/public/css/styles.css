@@ -1,3 +1,8 @@
+body {
+    background-color: #f9f9f6;
+    height: 100vh;
+}
+
 .button-panel button {
     margin-right: 6px;
 }

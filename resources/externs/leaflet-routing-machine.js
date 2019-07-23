@@ -30,3 +30,8 @@ var mapClickEvent = {
         lng: {}
     }
 }
+
+// externs for bulma toast
+var bulmaToast = {
+    toast: function() {}
+}

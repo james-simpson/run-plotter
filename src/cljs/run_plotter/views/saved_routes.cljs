@@ -90,6 +90,6 @@
                 [:tr.saved-route-row {:on-mouse-over
                                       #(highlight-polyline map-atom polylines-by-id id)}
                  [:td name]
-                 [:td (utils/format-distance distance units 2)]
+                 [:td (utils/format-distance distance units)]
                  [:td [:button.delete
                        {:on-click (fn [_] (re-frame/dispatch [:delete-route id]))}]]])]]]]]]))))
