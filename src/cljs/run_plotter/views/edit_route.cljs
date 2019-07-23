@@ -132,6 +132,75 @@
        [:button.button.is-info {:on-click confirm-fn} "Save changes"]
        [:button.button {:on-click cancel-fn} "Cancel"]]]]))
 
+(defn- zero-pad-duration
+  [n]
+  (if (< n 10)
+    (str "0" n)
+    (str n)))
+
+(def ^:private common-distances
+  [[1 "km"]
+   [1.60934 "mile"]
+   [5 "5k"]
+   [10 "10k"]
+   [(* 1.60934 13.1) "Half marathon"]
+   [(* 1.60934 26.2) "Marathon"]])
+
+(defn- format-duration
+  [time-in-seconds]
+  (let [hours (Math/floor (/ time-in-seconds 3600))
+        minutes (Math/floor (/ (- time-in-seconds (* 3600 hours)) 60))
+        seconds (mod (Math/round time-in-seconds) 60)
+        [h m s] (map zero-pad-duration [hours minutes seconds])]
+    (str (if (> hours 0) (str h ":") "") m ":" s)))
+
+(defn- pace-calculator
+  [route-distance {:keys [hours mins secs total-seconds]}]
+  (let [seconds-per-km (/ total-seconds (/ route-distance 1000))
+        common-distance-times (map (fn [[distance label]]
+                                     {:label label
+                                      :time (format-duration (* distance seconds-per-km))})
+                                   common-distances)]
+    [:div.panel {:style {:margin-top "2em"
+                         :max-width "600px"}}
+     [:p.panel-heading "Pace calculator"]
+     [:div.panel-block
+      [:div.field
+       [:label.label "Time taken to complete route"]
+       [:div.pace-inputs
+        [:div
+         [:label "hours"]
+         [:input.input
+          {:value hours
+           :on-change (fn [e]
+                        (re-frame/dispatch
+                                [:route-time-updated :hours (int e.target.value)]))}]]
+        [:div
+         [:label "mins"]
+         [:input.input
+          {:value mins
+           :on-change (fn [e] (re-frame/dispatch
+                                [:route-time-updated :mins (int e.target.value)]))}]]
+        [:div
+         [:label "secs"]
+         [:input.input
+          {:value secs
+           :on-change (fn [e] (re-frame/dispatch
+                                [:route-time-updated :secs (int e.target.value)]))}]]]]]
+     (if (and (> total-seconds 0) (> route-distance 0))
+       [:div.panel-block
+        [:table.table
+         [:thead
+          [:tr
+           [:td "Distance"]
+           [:td "Time"]]]
+         [:tbody
+          (for [{:keys [label time]} common-distance-times]
+            ^{:key label}
+            [:tr
+             [:td label]
+             [:td time]])]]])]))
+
 (defn edit-route-panel []
   (let [waypoints (re-frame/subscribe [::subs/waypoints])
         ; the :undos? and :redos? subscriptions are added by the re-frame-undo
@@ -142,9 +211,11 @@
         distance (re-frame/subscribe [::subs/distance])
         route-name (re-frame/subscribe [::subs/name])
         units (re-frame/subscribe [::subs/units])
-        save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])]
+        save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])
+        route-time (re-frame/subscribe [::subs/route-time])]
     [:div
      [leaflet-map {:waypoints @waypoints}]
      [distance-panel @distance @units]
      [route-operations-panel @undos? @redos? @offer-return-routes?]
-     [save-route-modal @save-in-progress? @route-name]]))
+     [save-route-modal @save-in-progress? @route-name]
+     [pace-calculator @distance @route-time]]))

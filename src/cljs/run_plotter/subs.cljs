@@ -34,6 +34,15 @@
          (not= (first waypoints) (last waypoints)))))
 
 (re-frame/reg-sub
+  ::route-time
+  (fn [db]
+    (let [{:keys [hours mins secs] :as route-time} (:route-time db)
+          total-seconds (+ (* 3600 (or hours 0))
+                           (* 60 (or mins 0))
+                           (or secs 0))]
+      (assoc route-time :total-seconds total-seconds))))
+
+(re-frame/reg-sub
   ::save-in-progress?
   (fn [db _]
     (:save-in-progress? db)))

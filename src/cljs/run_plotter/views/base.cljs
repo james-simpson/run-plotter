@@ -57,7 +57,8 @@
         units (re-frame/subscribe [::subs/units])]
     [:div
      [navbar @active-panel @units]
-     [:div {:style {:padding "25px"}}
+     [:div {:style {:padding "25px"
+                    :background-color "#f9f9f6"}}
       (case @active-panel
         :edit-route [edit-route-panel]
         :saved-routes [saved-routes-panel]

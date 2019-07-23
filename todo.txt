@@ -1,3 +1,4 @@
 - Fix initial zoom of saved routes map
 - Reload saved routes when route added/deleted
 - Open/edit saved route
+- Pace calculator

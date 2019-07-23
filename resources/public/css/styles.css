@@ -31,3 +31,31 @@
 .leaflet-control-container .leaflet-routing-container {
     display: none;
 }
+
+.pace-inputs > div {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.pace-inputs .input {
+    width: 70px;
+    font-size: 1.3em;
+}
+
+.pace-inputs label {
+    display: block;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.panel {
+    background-color: white;
+}
+
+.panel-block {
+    padding: 1.2em 1.5em;
+}
+
+.panel-block .table {
+    font-size: 1.1em;
+}

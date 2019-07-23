@@ -91,6 +91,11 @@
   (fn [db [_ units]]
     (assoc db :units units)))
 
+(rf/reg-event-db
+  :route-time-updated
+  (fn [db [_ time-unit value]]
+    (assoc-in db [:route-time time-unit] value)))
+
 ;;
 ;; ajax
 ;;
