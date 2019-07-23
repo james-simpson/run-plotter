@@ -50,4 +50,5 @@
 (re-frame/reg-sub
   ::saved-routes
   (fn [db]
-    (:saved-routes db)))
+    (->> (:saved-routes db)
+         (sort-by :distance))))

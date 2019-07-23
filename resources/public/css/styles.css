@@ -10,21 +10,21 @@
     background: white;
 }
 
-.saved-route-column {
-    font-size: 1.3em;
+.saved-route-row {
+    font-size: 1.1em;
 }
 
-.saved-route-column:hover {
+.saved-route-row:hover {
     background-color: #72bcec;
     font-weight: bold;
     cursor: pointer;
 }
 
-.saved-route-column:hover .delete {
+.saved-route-row:hover .delete {
     display: block;
 }
 
-.saved-route-column .delete {
+.saved-route-row .delete {
     display: none;
 }
 
@@ -50,17 +50,17 @@
 
 .panel {
     background-color: white;
-}
-
-.pace-calculator {
-    margin-top: 2em;
     max-width: 600px;
 }
 
-.pace-calculator .panel-block {
+.panel-block {
     padding: 1.2em 1.5em;
 }
 
-.pace-calculator .table {
+.panel-block .table {
     font-size: 1.1em;
+}
+
+.saved-routes-table {
+    width: 100%;
 }

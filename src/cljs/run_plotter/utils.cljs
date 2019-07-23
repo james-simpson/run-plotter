@@ -4,10 +4,13 @@
 
 (defn format-distance
   ([distance-in-meters units]
-   (format-distance distance-in-meters units 1))
-  ([distance-in-meters units decimal-places]
+   (format-distance distance-in-meters units 1 false))
+  ([distance-in-meters units decimal-places show-units?]
    (let [value-in-km (/ distance-in-meters 1000)
          value (if (= units :miles)
                  (* value-in-km 0.621371)
-                 value-in-km)]
-     (gstring/format (str "%." decimal-places "f %s") value (name units)))))
+                 value-in-km)
+         formatted-value (gstring/format (str "%." decimal-places "f") value)]
+     (if show-units?
+       (str formatted-value " " (name units))
+       formatted-value))))

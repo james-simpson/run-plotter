@@ -83,7 +83,7 @@
 (defn- distance-panel
   [value-in-meters units]
   [:h3.subtitle.is-3 {:style {:padding-top "1.5rem"}}
-   (utils/format-distance value-in-meters units 3)])
+   (utils/format-distance value-in-meters units 3 true)])
 
 (defn- route-operations-panel
   [undos? redos? offer-return-routes?]
@@ -169,7 +169,7 @@
                                       :time (format-duration (* distance seconds-per-km))})
                                    common-distances)
         show-results? (and (> total-seconds 0) (> route-distance 0))]
-    [:div.panel.pace-calculator
+    [:div.panel
      [:p.panel-heading "Pace calculator"]
      [:div.panel-block
       [:div.field
