@@ -52,10 +52,15 @@
     background-color: white;
 }
 
-.panel-block {
+.pace-calculator {
+    margin-top: 2em;
+    max-width: 600px;
+}
+
+.pace-calculator .panel-block {
     padding: 1.2em 1.5em;
 }
 
-.panel-block .table {
+.pace-calculator .table {
     font-size: 1.1em;
 }

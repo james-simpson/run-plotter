@@ -8,7 +8,7 @@
 
 (defn- draw-tile-layer
   [map-obj]
-  (-> (js/L.tileLayer "http://{s}.tile.osm.org/{z}/{x}/{y}{r}.png"
+  (-> (js/L.tileLayer "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                       (clj->js {:attribution "© OpenStreetMap contributors"}))
       (.addTo map-obj)))
 
@@ -57,8 +57,8 @@
 
 (defn saved-routes-panel []
   ; Note - in this component, both the map itself and the route list need
-  ; to access the JS objects for the leaflet map and polylines. These feel
-  ; like they belong as local state to this component rather than the re-frame
+  ; to access the JS objects for the leaflet map. This feels like it
+  ; belong as local state to this component rather than the re-frame
   ; app db, so it uses an atom to hold the local state, as suggested here:
   ; https://reagent-project.github.io/ ->> Managing state in Reagent
   (let [map-atom (atom nil)]

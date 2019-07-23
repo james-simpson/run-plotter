@@ -76,7 +76,7 @@
 (defn- leaflet-map []
   (let [route-control-atom (reagent/atom {})]
     (reagent/create-class
-      {:reagent-render (fn [] [:div#map {:style {:height "500px"}}])
+      {:reagent-render (fn [] [:div#map {:style {:height "535px"}}])
        :component-did-mount (partial map-did-mount route-control-atom)
        :component-did-update (partial map-did-update route-control-atom)})))
 
@@ -154,46 +154,34 @@
         [h m s] (map zero-pad-duration [hours minutes seconds])]
     (str (if (> hours 0) (str h ":") "") m ":" s)))
 
+(defn- time-input
+  [unit value]
+  [:input.input
+   {:value value
+    :on-change (fn [e] (re-frame/dispatch
+                         [:route-time-updated unit (int e.target.value)]))}])
+
 (defn- pace-calculator
   [route-distance {:keys [hours mins secs total-seconds]}]
   (let [seconds-per-km (/ total-seconds (/ route-distance 1000))
         common-distance-times (map (fn [[distance label]]
                                      {:label label
                                       :time (format-duration (* distance seconds-per-km))})
-                                   common-distances)]
-    [:div.panel {:style {:margin-top "2em"
-                         :max-width "600px"}}
+                                   common-distances)
+        show-results? (and (> total-seconds 0) (> route-distance 0))]
+    [:div.panel.pace-calculator
      [:p.panel-heading "Pace calculator"]
      [:div.panel-block
       [:div.field
        [:label.label "Time taken to complete route"]
        [:div.pace-inputs
-        [:div
-         [:label "hours"]
-         [:input.input
-          {:value hours
-           :on-change (fn [e]
-                        (re-frame/dispatch
-                                [:route-time-updated :hours (int e.target.value)]))}]]
-        [:div
-         [:label "mins"]
-         [:input.input
-          {:value mins
-           :on-change (fn [e] (re-frame/dispatch
-                                [:route-time-updated :mins (int e.target.value)]))}]]
-        [:div
-         [:label "secs"]
-         [:input.input
-          {:value secs
-           :on-change (fn [e] (re-frame/dispatch
-                                [:route-time-updated :secs (int e.target.value)]))}]]]]]
-     (if (and (> total-seconds 0) (> route-distance 0))
+        [:div [:label "hours"] [time-input :hours hours]]
+        [:div [:label "mins"] [time-input :mins mins]]
+        [:div [:label "secs"] [time-input :secs secs]]]]]
+     (if show-results?
        [:div.panel-block
         [:table.table
-         [:thead
-          [:tr
-           [:td "Distance"]
-           [:td "Time"]]]
+         [:thead [:tr [:td "Distance"] [:td "Time"]]]
          [:tbody
           (for [{:keys [label time]} common-distance-times]
             ^{:key label}
@@ -214,8 +202,11 @@
         save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])
         route-time (re-frame/subscribe [::subs/route-time])]
     [:div
-     [leaflet-map {:waypoints @waypoints}]
-     [distance-panel @distance @units]
+     [:div.columns
+      [:div.column
+       [leaflet-map {:waypoints @waypoints}]
+       [distance-panel @distance @units]]
+      [:div.column.is-one-third
+       [pace-calculator @distance @route-time]]]
      [route-operations-panel @undos? @redos? @offer-return-routes?]
-     [save-route-modal @save-in-progress? @route-name]
-     [pace-calculator @distance @route-time]]))
+     [save-route-modal @save-in-progress? @route-name]]))
