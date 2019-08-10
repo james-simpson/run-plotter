@@ -5,7 +5,11 @@
     [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
     [day8.re-frame.undo :as undo]
     [day8.re-frame.http-fx]
-    [ajax.core :as ajax]))
+    [ajax.core :as ajax]
+    [com.michaelgaare.clojure-polyline :as polyline]
+    [clojure.string :as str]))
+
+
 
 (def ^:private api-base-url "http://localhost:3000")
 
@@ -29,11 +33,47 @@
                                       :success "is-success"
                                       :failure "is-danger")})))
 
-(rf/reg-event-db
+(def ^:private mapbox-token js/MAPBOX_TOKEN)
+
+(rf/reg-event-fx
   :add-waypoint
   (undo/undoable "add waypoint")
-  (fn [db [_ lat lng]]
-    (update-in db [:route :waypoints] #(concat % [[lat lng]]))))
+  (fn [{:keys [db]} [_ lat lng]]
+    (if-let [last-co-ords (-> db :route :co-ords last)]
+      (let [co-ord-string (->> [last-co-ords [lat lng]]
+                               (map (fn [[lat lng]] [lng lat]))
+                               (map (partial str/join ","))
+                               (str/join ";"))]
+        {:http-xhrio {:method :get
+                      :uri (str "https://api.mapbox.com/directions/v5/mapbox/walking/" co-ord-string
+                                "?access_token=" mapbox-token)
+                      :format (ajax/json-request-format)
+                      :response-format (ajax/json-response-format {:keywords? true})
+                      :on-success [:routing-success]
+                      :on-failure [:routing-failure]}})
+      {:db (update-in db [:route :co-ords] #(conj % [lat lng]))})))
+
+(rf/reg-event-fx
+  :routing-success
+  (fn [{:keys [db]} [_ response]]
+    (let [route (first (:routes response))
+          co-ords (polyline/decode (:geometry route))
+          prev-co-ords (get-in db [:route :co-ords])
+          ; If the previous co-ords were just a single point, then
+          ; discard that and use the routing results as we want
+          ; all co-ords to be snapped to paths.
+          new-co-ords (if (= (count prev-co-ords) 1)
+                        co-ords
+                        (concat prev-co-ords co-ords))
+          distance (:distance route)]
+      {:db (-> db
+               (assoc-in [:route :co-ords] new-co-ords)
+               (update-in [:route :distance] #(+ % distance)))})))
+
+(rf/reg-event-fx
+  :routing-failure
+  (fn [_]
+    {:show-toast ["Unable to find route" :failure]}))
 
 (rf/reg-event-fx
   :set-saved-routes
@@ -55,7 +95,7 @@
   :clear-route
   (undo/undoable "clear route")
   (fn [db _]
-    (assoc db :route {:waypoints []
+    (assoc db :route {:co-ords []
                       :distance 0})))
 
 (rf/reg-event-db

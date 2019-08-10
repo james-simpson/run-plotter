@@ -13,6 +13,11 @@
     (get-in db [:route :waypoints])))
 
 (re-frame/reg-sub
+  ::co-ords
+  (fn [db]
+    (get-in db [:route :co-ords])))
+
+(re-frame/reg-sub
   ::name
   (fn [db]
     (get-in db [:route :name])))

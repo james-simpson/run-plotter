@@ -9,6 +9,7 @@
 
    ;; Edit route panel
    :route {:waypoints []
+           :co-ords []
            ; total route distance, in meters
            :distance 0}
 

@@ -8,6 +8,8 @@
                  [kibu/pushy "0.3.8"]
                  [bidi "2.1.6"]
                  [cljs-http "0.1.46"]
+                 [cljs-ajax "0.8.0"]
+                 [cljsjs/react-leaflet "2.0.1-0"]
                  [io.jesi/clojure-polyline "0.4.1"]
 
                  [compojure "1.6.1"]
