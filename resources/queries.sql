@@ -5,16 +5,9 @@ insert into routes (name, distance, polyline)
 values (:name, :distance, :polyline)
 returning id;
 
--- :name sql-insert-waypoints
--- :doc Insert a route
--- :command :execute
-insert into waypoints (route_id, waypoint_order, lat, lng)
-values :tuple*:waypoints;
-
 -- :name sql-select-route
 -- :doc Select a routes with waypoints
 select * from routes
-join waypoints on routes.id = waypoints.route_id
 where id = :id;
 
 -- :name sql-select-all-routes

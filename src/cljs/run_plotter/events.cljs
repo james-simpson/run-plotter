@@ -9,10 +9,6 @@
     [com.michaelgaare.clojure-polyline :as polyline]
     [clojure.string :as str]))
 
-
-
-(def ^:private api-base-url "http://localhost:3000")
-
 (rf/reg-event-fx
   ::initialize-db
   (fn-traced [_ _]
@@ -145,7 +141,7 @@
   :load-saved-routes
   (fn [_]
     {:http-xhrio {:method :get
-                  :uri (str api-base-url "/routes")
+                  :uri "/routes"
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-routes-success]
                   :on-failure [:get-routes-failure]}}))
@@ -164,14 +160,16 @@
 (rf/reg-event-fx
   :confirm-save
   (fn [{:keys [db]} _]
-    {:db (assoc db :save-in-progress? false)
-     :http-xhrio {:method :post
-                  :uri (str api-base-url "/routes")
-                  :params (:route db)
-                  :format (ajax/json-request-format)
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success [:post-route-success]
-                  :on-failure [:post-route-failure]}}))
+    (let [route (:route db)
+          polyline (polyline/encode (:co-ords route))]
+      {:db (assoc db :save-in-progress? false)
+       :http-xhrio {:method :post
+                    :uri "/routes"
+                    :params (assoc route :polyline polyline)
+                    :format (ajax/json-request-format)
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success [:post-route-success]
+                    :on-failure [:post-route-failure]}})))
 
 (rf/reg-event-fx
   :post-route-success
@@ -190,7 +188,7 @@
   :delete-route
   (fn [{:keys [db]} [_ id]]
     {:http-xhrio {:method :delete
-                  :uri (str api-base-url "/routes/" id)
+                  :uri (str "/routes/" id)
                   :format (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:delete-route-success]

@@ -44,12 +44,10 @@
   (let [db-spec (get-db-spec)]
     (db/insert-route! db-spec {:name "Bristol 10k"
                                :distance 10000
-                               :polyline "abc"
-                               :waypoints [[60.1 70.2] [60.2 70.3]]})
+                               :polyline "abc"})
     (db/insert-route! db-spec {:name "London marathon"
                                :distance 40000
-                               :polyline "efg"
-                               :waypoints [[15.0 40.2] [15.0 40.5]]}))
+                               :polyline "efg"}))
 
   (testing "GET /routes"
     (let [response (http/get (str base-url "/routes")
@@ -66,8 +64,7 @@
       (is (= {:id 1
               :name "Bristol 10k"
               :distance 10000
-              :polyline "abc"
-              :waypoints [[60.1 70.2] [60.2 70.3]]}
+              :polyline "abc"}
              (:body response))))))
 
 (deftest post-routes
@@ -75,8 +72,7 @@
     (let [db-spec (get-db-spec)
           route {:name "Bristol 10k"
                  :distance 10000
-                 :polyline "abc"
-                 :waypoints [[60.1 70.2] [60.2 70.3]]}
+                 :polyline "abc"}
           response (http/post (str base-url "/routes")
                               {:body (json/write-str route)
                                :content-type :json
@@ -85,8 +81,7 @@
       (is (= {:id 1
               :name "Bristol 10k"
               :distance 10000
-              :polyline "abc"
-              :waypoints [[60.1M 70.2M] [60.2M 70.3M]]}
+              :polyline "abc"}
              (db/get-route db-spec 1))))))
 
 (deftest delete-route
@@ -94,12 +89,10 @@
     (let [db-spec (get-db-spec)
           _ (db/insert-route! db-spec {:name "Bristol 10k"
                                        :distance 10000
-                                       :polyline "abc"
-                                       :waypoints [[60.1 70.2] [60.2 70.3]]})
+                                       :polyline "abc"})
           _ (db/insert-route! db-spec {:name "London marathon"
                                        :distance 40000
-                                       :polyline "efg"
-                                       :waypoints [[15.0 40.2] [15.0 40.5]]})
+                                       :polyline "efg"})
           response (http/delete (str base-url "/routes/2")
                                 {:as :json})]
       (is (= 200 (:status response)))
