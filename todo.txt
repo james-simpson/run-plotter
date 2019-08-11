@@ -1,4 +1,3 @@
 - Fix initial zoom of saved routes map
 - Open/edit saved route
 - Add direction arrows to polyline
-- Improve start/end markers

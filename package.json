@@ -14,6 +14,7 @@
     "bulma-toast": "^1.5.1",
     "create-react-class": "^15.6.3",
     "leaflet": "^1.5.1",
+    "leaflet-polylinedecorator": "^1.6.0",
     "leaflet.icon.glyph": "^0.2.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",

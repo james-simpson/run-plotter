@@ -5,9 +5,10 @@
     [run-plotter.utils :as utils]
     [reagent.core :as reagent]
     [goog.object]
-    [com.michaelgaare.clojure-polyline :as polyline]
     [react-leaflet :as react-leaflet]
-    ["leaflet.icon.glyph"]))
+    ["react" :as react]
+    ["leaflet.icon.glyph"]
+    ["leaflet-polylinedecorator"]))
 
 ; MAPBOX_TOKEN variable is loaded from resources/js/config.js
 (def ^:private mapbox-token js/MAPBOX_TOKEN)
@@ -126,6 +127,42 @@
 (def Polyline (reagent/adapt-react-class react-leaflet/Polyline))
 (def Marker (reagent/adapt-react-class react-leaflet/Marker))
 
+(def polyline-decorator-opts
+  (clj->js {:patterns [{:offset 0
+                        :repeat 200
+                        :symbol (js/L.Symbol.arrowHead
+                                  (clj->js {:pixel-size 10
+                                            :polygon false
+                                            :pathOptions {:color "red"
+                                                          :fill-opacity 0.9}}))}]}))
+
+(defn poly-decorator
+  [co-ords]
+  (let [polyref (react/createRef)
+        decorator-atom (atom nil)
+        re-render-decorator (fn [_]
+                              (let [polyline polyref.current.leafletElement
+                                    leaflet-map polyref.current.props.leaflet.map
+                                    decorator (js/L.polylineDecorator polyline polyline-decorator-opts)
+                                    old-decorator @decorator-atom
+                                    _ (reset! decorator-atom decorator)]
+                                (.addTo decorator leaflet-map)
+                                (when old-decorator
+                                  (.removeLayer leaflet-map old-decorator))))]
+    (reagent/create-class
+      {:component-did-mount re-render-decorator
+       :component-did-update re-render-decorator
+       :reagent-render
+       (fn []
+         (let [co-ords (-> (reagent/current-component) reagent/props :coOrds)]
+           [Polyline {:ref polyref
+                      :color "red"
+                      :positions co-ords}]))})))
+
+(def PolylineDecorator
+  (reagent/adapt-react-class
+    (react-leaflet/withLeaflet (reagent/reactify-component poly-decorator))))
+
 (defn edit-route-panel []
   (let [co-ords (re-frame/subscribe [::subs/co-ords])
         ; the :undos? and :redos? subscriptions are added by the re-frame-undo
@@ -150,8 +187,7 @@
         [TileLayer {:url "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                     :attribution "© OpenStreetMap contributors"}]
 
-        [Polyline {:positions @co-ords
-                   :color "red"}]
+        [PolylineDecorator {:co-ords @co-ords}]
 
         (if-let [start (first @co-ords)]
           [Marker {:position start
