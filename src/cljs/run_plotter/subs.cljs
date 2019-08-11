@@ -34,9 +34,9 @@
 
 (re-frame/reg-sub
   ::offer-return-routes?
-  (fn [{{:keys [waypoints]} :route}]
-    (and (> (count waypoints) 1)
-         (not= (first waypoints) (last waypoints)))))
+  (fn [{{:keys [co-ords]} :route}]
+    (and (> (count co-ords) 1)
+         (not= (first co-ords) (last co-ords)))))
 
 (re-frame/reg-sub
   ::route-time

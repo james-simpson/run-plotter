@@ -1,3 +1,6 @@
 - Fix initial zoom of saved routes map
 - Reload saved routes when route added/deleted
 - Open/edit saved route
+- Migrate saved routes to react-leaflet
+- Add direction arrows to polyline
+- Improve start/end markers
