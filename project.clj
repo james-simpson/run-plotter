@@ -83,7 +83,7 @@
                 :output-to "resources/public/js/compiled/app.js"
                 :optimizations :advanced
                 :externs ["resources/externs/leaflet.js"
-                          "resources/externs/leaflet-routing-machine.js"]
+                          "resources/externs/externs.js"]
                 :closure-defines {goog.DEBUG false}}}
 
     ]}

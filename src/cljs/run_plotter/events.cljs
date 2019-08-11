@@ -94,22 +94,21 @@
     (assoc db :route {:co-ords []
                       :distance 0})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :plot-shortest-return-route
-  (undo/undoable "shortest return route")
-  (fn [db _]
-    (update-in db [:route :waypoints] #(concat % [(first %)]))))
+  (fn [{:keys [db]} _]
+    (let [[lat lng] (first (get-in db [:route :co-ords]))]
+      {:db db
+       :dispatch [:add-waypoint lat lng]})))
 
 (rf/reg-event-db
   :plot-same-route-back
   (undo/undoable "same route back")
   (fn [db _]
-    (let [return-waypoints (->> (:route db)
-                                :waypoints
-                                butlast
-                                reverse)]
-      (update-in db [:route :waypoints]
-                 #(concat % return-waypoints)))))
+    (let [return-waypoints (->> (:route db) :co-ords butlast reverse)]
+      (-> db
+          (update-in [:route :co-ords] #(concat % return-waypoints))
+          (update-in [:route :distance] #(* % 2))))))
 
 (rf/reg-event-db
   :route-updated
@@ -136,12 +135,14 @@
 ;; ajax
 ;;
 
+(def api-base-url "http://localhost:3000")
+
 ;; get routes
 (rf/reg-event-fx
   :load-saved-routes
   (fn [_]
     {:http-xhrio {:method :get
-                  :uri "/routes"
+                  :uri (str api-base-url "/routes")
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-routes-success]
                   :on-failure [:get-routes-failure]}}))
@@ -164,7 +165,7 @@
           polyline (polyline/encode (:co-ords route))]
       {:db (assoc db :save-in-progress? false)
        :http-xhrio {:method :post
-                    :uri "/routes"
+                    :uri (str api-base-url "/routes")
                     :params (assoc route :polyline polyline)
                     :format (ajax/json-request-format)
                     :response-format (ajax/json-response-format {:keywords? true})
@@ -188,7 +189,7 @@
   :delete-route
   (fn [{:keys [db]} [_ id]]
     {:http-xhrio {:method :delete
-                  :uri (str "/routes/" id)
+                  :uri (str api-base-url "/routes/" id)
                   :format (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:delete-route-success]

@@ -152,9 +152,11 @@
         [Polyline {:positions @co-ords}]
 
         (if-let [start (first @co-ords)]
-          [Marker {:position start
-                   ;todo - :icon
-                   }])
+          (do
+            (js/console.log js/L)
+            [Marker {:position start
+                     ;todo - :icon
+                     }]))
 
         (if-let [end (last (rest @co-ords))]
           [Marker {:position end

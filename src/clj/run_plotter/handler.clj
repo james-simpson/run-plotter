@@ -46,6 +46,6 @@
   [_ {:keys [db-client]}]
   (-> (->routes (:spec db-client))
       (wrap-json-body {:keywords? true})
-      (wrap-cors :access-control-allow-origin [#"http://localhost:3449"]
+      (wrap-cors :access-control-allow-origin [#"http://localhost:8280"]
                  :access-control-allow-methods [:get :put :post :delete])
       wrap-json-response))
