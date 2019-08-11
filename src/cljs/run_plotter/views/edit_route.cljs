@@ -6,7 +6,8 @@
     [reagent.core :as reagent]
     [goog.object]
     [com.michaelgaare.clojure-polyline :as polyline]
-    [react-leaflet :as react-leaflet]))
+    [react-leaflet :as react-leaflet]
+    ["leaflet.icon.glyph"]))
 
 ; MAPBOX_TOKEN variable is loaded from resources/js/config.js
 (def ^:private mapbox-token js/MAPBOX_TOKEN)
@@ -149,19 +150,16 @@
         [TileLayer {:url "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
                     :attribution "© OpenStreetMap contributors"}]
 
-        [Polyline {:positions @co-ords}]
+        [Polyline {:positions @co-ords
+                   :color "red"}]
 
         (if-let [start (first @co-ords)]
-          (do
-            (js/console.log js/L)
-            [Marker {:position start
-                     ;todo - :icon
-                     }]))
+          [Marker {:position start
+                   :icon (js/L.icon.glyph #js {:glyph "A"})}])
 
         (if-let [end (last (rest @co-ords))]
           [Marker {:position end
-                   ;todo - :icon
-                   }])]
+                   :icon (js/L.icon.glyph #js {:glyph "B"})}])]
        [distance-panel @distance @units]]
       [:div.column.is-one-third
        [pace-calculator @distance @route-time]]]

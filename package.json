@@ -11,6 +11,7 @@
     "shadow-cljs": "^2.3.0"
   },
   "dependencies": {
+    "bulma-toast": "^1.5.1",
     "create-react-class": "^15.6.3",
     "leaflet": "^1.5.1",
     "leaflet.icon.glyph": "^0.2.1",

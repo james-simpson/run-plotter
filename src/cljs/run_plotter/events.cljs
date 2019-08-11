@@ -7,7 +7,8 @@
     [day8.re-frame.http-fx]
     [ajax.core :as ajax]
     [com.michaelgaare.clojure-polyline :as polyline]
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    ["bulma-toast" :as bulma-toast]))
 
 (rf/reg-event-fx
   ::initialize-db
@@ -23,7 +24,7 @@
 (rf/reg-fx
   :show-toast
   (fn [[message type]]
-    (js/bulmaToast.toast #js {:message message
+    (bulma-toast/toast #js {:message message
                               :position "top-center"
                               :type (case type
                                       :success "is-success"
