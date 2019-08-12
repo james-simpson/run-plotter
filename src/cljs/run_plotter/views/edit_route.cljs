@@ -133,7 +133,7 @@
                         :symbol (js/L.Symbol.arrowHead
                                   (clj->js {:pixel-size 10
                                             :polygon false
-                                            :pathOptions {:color "red"
+                                            :pathOptions {:color "black"
                                                           :fill-opacity 0.9}}))}]}))
 
 (defn poly-decorator
@@ -164,7 +164,9 @@
     (react-leaflet/withLeaflet (reagent/reactify-component poly-decorator))))
 
 (defn edit-route-panel []
-  (let [co-ords (re-frame/subscribe [::subs/co-ords])
+  (let [state (atom {})
+        ref-fn (fn [el] (swap! state assoc :map-obj (if el (.-leafletElement el))))
+        co-ords (re-frame/subscribe [::subs/co-ords])
         ; the :undos? and :redos? subscriptions are added by the re-frame-undo
         ; library, along with the :undo and :redo event handlers
         undos? (re-frame/subscribe [:undos?])
@@ -178,13 +180,16 @@
     [:div
      [:div.columns
       [:div.column
-       [Map {:center [51.437382 -2.590950]
-             :zoom 17
+       [Map {:ref ref-fn
+             :center [51.437382 -2.590950]
+             :zoom 15
              :style {:height "535px"}
              :on-click (fn [^js/mapClickEvent e]
-                         (re-frame/dispatch [:add-waypoint e.latlng.lat e.latlng.lng]))}
+                         (let [[lat lng] [e.latlng.lat e.latlng.lng]]
+                           (.panTo (:map-obj @state) #js [lat lng])
+                           (re-frame/dispatch [:add-waypoint lat lng])))}
 
-        [TileLayer {:url "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+        [TileLayer {:url "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
                     :attribution "© OpenStreetMap contributors"}]
 
         [PolylineDecorator {:co-ords @co-ords}]
