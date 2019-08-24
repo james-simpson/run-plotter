@@ -15,15 +15,14 @@
 
   :main run-plotter.core
 
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/clj"]
 
   :profiles
   {:dev
    {:dependencies [[ring/ring-mock "0.4.0"]
                    [bigsy/pg-embedded-clj "0.0.8"]
                    [integrant/repl "0.3.1"]
-                   [clj-http "3.9.1"]
-
-                   [thheller/shadow-cljs "2.8.51"]]}
+                   [clj-http "3.9.1"]]}
    :uberjar {:main run-plotter.core
+             :uberjar-name "run-plotter.jar"
              :aot [run-plotter.core]}})
