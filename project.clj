@@ -1,5 +1,6 @@
 (defproject run-plotter "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/data.json "0.2.6"]
                  [compojure "1.6.1"]
                  [yogthos/config "1.1.2"]
                  [ring "1.7.1"]
