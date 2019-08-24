@@ -8,5 +8,6 @@
   []
   (let [conf (config/read-config)]
     (ig/load-namespaces conf)
-    (ig/init conf)))
+    (ig/init conf)
+    (println "Started app")))
 
