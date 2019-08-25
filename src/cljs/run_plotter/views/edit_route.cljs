@@ -10,8 +10,8 @@
     ["leaflet.icon.glyph"]
     ["leaflet-polylinedecorator"]))
 
-; MAPBOX_TOKEN variable is loaded from resources/js/config.js
-(def ^:private mapbox-token js/MAPBOX_TOKEN)
+; TODO - move to server side and regenerate token
+(def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
 
 (defn- distance-panel
   [value-in-meters units]
