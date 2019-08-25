@@ -1,5 +1,5 @@
 {:run-plotter.server/server
- {:port 3000
+ {:port #long #or [#env PORT 3000]
   :handler #ig/ref :run-plotter.handler/handler}
 
  :run-plotter.handler/handler
@@ -14,7 +14,7 @@
   :minimum-idle 2
   :maximum-pool-size 2
   :adapter "postgresql"
-  :database-name "postgres"
+  :database-name #or [#env DB_NAME "postgres"]
   :server-name #or [#env DB_SERVER "localhost"]
   :username #or [#env DB_USERNAME "postgres"]
   :password #or [#env DB_PASSWORD "postgres"]

@@ -1,2 +1,5 @@
 - Fix initial zoom of saved routes map
 - Open/edit saved route
+- Deploy via CI
+- Centre map when using 'Back to start', 'Shortest route back' etc.
+- 'Rejoin route back' button

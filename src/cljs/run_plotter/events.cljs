@@ -136,14 +136,12 @@
 ;; ajax
 ;;
 
-(def api-base-url "http://localhost:3000")
-
 ;; get routes
 (rf/reg-event-fx
   :load-saved-routes
   (fn [_]
     {:http-xhrio {:method :get
-                  :uri (str api-base-url "/routes")
+                  :uri "/routes"
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-routes-success]
                   :on-failure [:get-routes-failure]}}))
@@ -166,7 +164,7 @@
           polyline (polyline/encode (:co-ords route))]
       {:db (assoc db :save-in-progress? false)
        :http-xhrio {:method :post
-                    :uri (str api-base-url "/routes")
+                    :uri "/routes"
                     :params (assoc route :polyline polyline)
                     :format (ajax/json-request-format)
                     :response-format (ajax/json-response-format {:keywords? true})
@@ -190,7 +188,7 @@
   :delete-route
   (fn [{:keys [db]} [_ id]]
     {:http-xhrio {:method :delete
-                  :uri (str api-base-url "/routes/" id)
+                  :uri (str "/routes/" id)
                   :format (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:delete-route-success]

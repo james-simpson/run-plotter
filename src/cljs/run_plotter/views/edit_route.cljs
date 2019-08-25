@@ -182,15 +182,16 @@
       [:div.column
        [Map {:ref ref-fn
              :center [51.437382 -2.590950]
-             :zoom 15
-             :style {:height "535px"}
+             :zoom 16
+             :style {:height "70vh"}
              :on-click (fn [^js/mapClickEvent e]
                          (let [[lat lng] [e.latlng.lat e.latlng.lng]]
                            (.panTo (:map-obj @state) #js [lat lng])
                            (re-frame/dispatch [:add-waypoint lat lng])))}
 
-        [TileLayer {:url "https://{s}.tile.osm.org/{z}/{x}/{y}.png"
-                    :attribution "© OpenStreetMap contributors"}]
+        [TileLayer {:url (str "https://api.tiles.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=" mapbox-token)
+                    :attribution "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>"
+                    :id "mapbox.run-bike-hike"}]
 
         [PolylineDecorator {:co-ords @co-ords}]
 
@@ -201,8 +202,8 @@
         (if-let [end (last (rest @co-ords))]
           [Marker {:position end
                    :icon (js/L.icon.glyph #js {:glyph "B"})}])]
-       [distance-panel @distance @units]]
-      [:div.column.is-one-third
-       [pace-calculator @distance @route-time]]]
+       [distance-panel @distance @units]]]
      [route-operations-panel @undos? @redos? @offer-return-routes?]
+     [:div.column.is-one-third
+      [pace-calculator @distance @route-time]]
      [save-route-modal @save-in-progress? @route-name]]))

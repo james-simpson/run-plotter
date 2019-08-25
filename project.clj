@@ -25,5 +25,4 @@
                    [integrant/repl "0.3.1"]
                    [clj-http "3.9.1"]]}
    :uberjar {:main run-plotter.core
-             :uberjar-name "run-plotter.jar"
              :aot [run-plotter.core]}})
