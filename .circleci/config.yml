@@ -9,13 +9,13 @@ jobs:
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
     steps:
       - checkout
+      - restore_cache:
+          key: run-plotter-{{ checksum "project.clj" }}
       - run:
           name: Build clojurescript
           command: |
             npm install
             npx shadow-cljs release app
-      - restore_cache:
-          key: run-plotter-{{ checksum "project.clj" }}
       - run: lein deps
       - save_cache:
           paths:
@@ -27,7 +27,7 @@ jobs:
           command: |
             curl https://cli-assets.heroku.com/install.sh | sh
             heroku plugins:install java
-            heroku stack:set heroku-18
+            heroku stack:set heroku-18 --app run-plotter
             heroku deploy:jar target/*-standalone.jar --app run-plotter
 
 #      - setup_remote_docker
