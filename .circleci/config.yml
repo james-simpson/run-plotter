@@ -22,7 +22,7 @@ jobs:
           name: Build and push Docker image
           command: |
             docker build -t registry.heroku.com/run-plotter/web .
-            echo $HEROKU_TOKEN | docker login --username=_ --password-stdin registry.heroku.com
+            echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
             docker push registry.heroku.com/run-plotter/web
       - run:
           name: Deploy - release the image to heroku
@@ -38,4 +38,5 @@ jobs:
               ]
             }" \
               -H "Content-Type: application/json" \
-              -H "Accept: application/vnd.heroku+json; version=3.docker-releases"
+              -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+              -H "Authorization: Bearer ${HEROKU_API_KEY}"
