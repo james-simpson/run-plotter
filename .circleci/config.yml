@@ -21,7 +21,10 @@ jobs:
           paths:
             - ~/.m2
           key: run-plotter-{{ checksum "project.clj" }}
-      - run: lein do test, uberjar
+      - run: |
+          useradd non-root-user
+          su - non-root-user
+          lein do test, uberjar
       - run:
           name: Deploy jar to heroku
           command: |
