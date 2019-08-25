@@ -21,6 +21,21 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
-            docker build -t run-plotter .
+            docker build -t registry.heroku.com/run-plotter/web .
             echo $HEROKU_TOKEN | docker login --username=_ --password-stdin registry.heroku.com
             docker push registry.heroku.com/run-plotter/web
+      - run:
+          name: Deploy - release the image to heroku
+          command: |
+            IMAGE_ID=$(docker inspect registry.heroku.com/run-plotter/web --format={{.Id}})
+            curl -n -X PATCH https://api.heroku.com/apps/run-plotter/formation \
+              -d "{
+              \"updates\": [
+                {
+                  \"type\": \"web\",
+                  \"docker_image\": \"${IMAGE_ID}\"
+                }
+              ]
+            }" \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/vnd.heroku+json; version=3.docker-releases"
