@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/run-plotter
     docker:
-      - image: clojure:openjdk-11-lein-node
+      - image: circleci/clojure:openjdk-11-lein-2.9.1-node
     environment:
       LEIN_ROOT: nbd
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
