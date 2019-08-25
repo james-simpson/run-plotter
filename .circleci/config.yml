@@ -3,12 +3,17 @@ jobs:
   build:
     working_directory: ~/run-plotter
     docker:
-      - image: circleci/clojure:lein-2.9.1
+      - image: theasp/clojurescript-nodejs:alpine
     environment:
       LEIN_ROOT: nbd
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
     steps:
       - checkout
+      - run:
+          name: Build clojurescript
+          command: |
+            npm install
+            npx shadow-cljs release app
       - restore_cache:
           key: run-plotter-{{ checksum "project.clj" }}
       - run: lein deps
@@ -16,27 +21,35 @@ jobs:
           paths:
             - ~/.m2
           key: run-plotter-{{ checksum "project.clj" }}
-      - run: lein test
-      - setup_remote_docker
+      - run: lein do test, uberjar
       - run:
-          name: Build and push Docker image
+          name: Deploy jar to heroku
           command: |
-            docker build -t registry.heroku.com/run-plotter/web .
-            echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
-            docker push registry.heroku.com/run-plotter/web
-      - run:
-          name: Deploy - release the image to heroku
-          command: |
-            IMAGE_ID=$(docker inspect registry.heroku.com/run-plotter/web --format={{.Id}})
-            curl -n -X PATCH https://api.heroku.com/apps/run-plotter/formation \
-              -d "{
-              \"updates\": [
-                {
-                  \"type\": \"web\",
-                  \"docker_image\": \"${IMAGE_ID}\"
-                }
-              ]
-            }" \
-              -H "Content-Type: application/json" \
-              -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
-              -H "Authorization: Bearer ${HEROKU_API_KEY}"
+            curl https://cli-assets.heroku.com/install.sh | sh
+            heroku plugins:install java
+            heroku stack:set heroku-18
+            heroku deploy:jar target/*-standalone.jar --app run-plotter
+
+#      - setup_remote_docker
+#      - run:
+#          name: Build and push Docker image
+#          command: |
+#            docker build -t registry.heroku.com/run-plotter/web .
+#            echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+#            docker push registry.heroku.com/run-plotter/web
+#      - run:
+#          name: Deploy - release the image to heroku
+#          command: |
+#            IMAGE_ID=$(docker inspect registry.heroku.com/run-plotter/web --format={{.Id}})
+#            curl -n -X PATCH https://api.heroku.com/apps/run-plotter/formation \
+#              -d "{
+#              \"updates\": [
+#                {
+#                  \"type\": \"web\",
+#                  \"docker_image\": \"${IMAGE_ID}\"
+#                }
+#              ]
+#            }" \
+#              -H "Content-Type: application/json" \
+#              -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+#              -H "Authorization: Bearer ${HEROKU_API_KEY}"

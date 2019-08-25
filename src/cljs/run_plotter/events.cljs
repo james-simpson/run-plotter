@@ -30,7 +30,8 @@
                                       :success "is-success"
                                       :failure "is-danger")})))
 
-(def ^:private mapbox-token js/MAPBOX_TOKEN)
+; TODO - move to server side and regenerate token
+(def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
 
 (rf/reg-event-fx
   :add-waypoint
