@@ -16,14 +16,11 @@ jobs:
           paths:
             - ~/.m2
           key: run-plotter-{{ checksum "project.clj" }}
-      - run: lein do test, uberjar
-      - store_artifacts:
-          path: target/run-plotter.jar
-          destination: uberjar
+      - run: lein test
       - setup_remote_docker
       - run:
           name: Build and push Docker image
           command: |
             docker build -t run-plotter .
-            echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push ariv3ra/$IMAGE_NAME:$TAG
+            echo $HEROKU_TOKEN | docker login --username=_ --password-stdin registry.heroku.com
+            docker push registry.heroku.com/run-plotter/web
