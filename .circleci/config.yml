@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/run-plotter
     docker:
-      - image: theasp/clojurescript-nodejs:alpine
+      - image: clojure:openjdk-11-lein-node
     environment:
       LEIN_ROOT: nbd
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
@@ -21,10 +21,7 @@ jobs:
           paths:
             - ~/.m2
           key: run-plotter-{{ checksum "project.clj" }}
-      - run: |
-          useradd non-root-user
-          su - non-root-user
-          lein do test, uberjar
+      - run: lein do test, uberjar
       - run:
           name: Deploy jar to heroku
           command: |
