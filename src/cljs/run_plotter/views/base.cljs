@@ -35,12 +35,13 @@
 
 (defn- navbar
   [active-panel units]
-  [:nav.navbar.is-info {:style {:height "60px"}}
+  [:nav.navbar.is-info {:style {:height "5vh"}}
    [:div.navbar-brand
     [:a.navbar-item {:href (routes/url-for :edit-route)
                      :style {:padding-left "20px"}}
-     [:img {:src "img/runner-icon.svg"
-            :style {:max-height "2em"}}]]]
+     [:img {:src "img/runner-icon.svg"}]]
+    [:div.navbar-burger.burger
+     [:span][:span][:span]]]
    [:div.navbar-menu
     [:div.navbar-start
      [navbar-item :edit-route "Create a route" active-panel]
@@ -57,7 +58,7 @@
         units (re-frame/subscribe [::subs/units])]
     [:div
      [navbar @active-panel @units]
-     [:div {:style {:padding "25px"}}
+     [:div
       (case @active-panel
         :edit-route [edit-route-panel]
         :saved-routes [saved-routes-panel]

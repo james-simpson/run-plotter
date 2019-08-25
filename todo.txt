@@ -3,3 +3,4 @@
 - Deploy via CI
 - Centre map when using 'Back to start', 'Shortest route back' etc.
 - 'Rejoin route back' button
+- Fix top bar on mobile

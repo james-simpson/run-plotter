@@ -3,8 +3,20 @@ body {
     height: 100vh;
 }
 
+.button-panel {
+    position: absolute;
+    z-index: 10000;
+    bottom: 10px;
+    left: 12px;
+}
+
 .button-panel button {
     margin-right: 6px;
+}
+
+.button-panel button[disabled] {
+    background-color: #aca1a19c;
+    opacity: 1;
 }
 
 .radio input {
@@ -30,10 +42,6 @@ body {
 }
 
 .saved-route-row .delete {
-    display: none;
-}
-
-.leaflet-control-container .leaflet-routing-container {
     display: none;
 }
 
