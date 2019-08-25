@@ -29,27 +29,3 @@ jobs:
             heroku plugins:install java
             heroku stack:set heroku-18 --app run-plotter
             heroku deploy:jar target/*-standalone.jar --app run-plotter
-
-#      - setup_remote_docker
-#      - run:
-#          name: Build and push Docker image
-#          command: |
-#            docker build -t registry.heroku.com/run-plotter/web .
-#            echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
-#            docker push registry.heroku.com/run-plotter/web
-#      - run:
-#          name: Deploy - release the image to heroku
-#          command: |
-#            IMAGE_ID=$(docker inspect registry.heroku.com/run-plotter/web --format={{.Id}})
-#            curl -n -X PATCH https://api.heroku.com/apps/run-plotter/formation \
-#              -d "{
-#              \"updates\": [
-#                {
-#                  \"type\": \"web\",
-#                  \"docker_image\": \"${IMAGE_ID}\"
-#                }
-#              ]
-#            }" \
-#              -H "Content-Type: application/json" \
-#              -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
-#              -H "Authorization: Bearer ${HEROKU_API_KEY}"
