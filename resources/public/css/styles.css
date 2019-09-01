@@ -3,11 +3,41 @@ body {
     height: 100vh;
 }
 
+.navbar {
+    z-index: 402;
+}
+
+
 .button-panel {
     position: absolute;
-    z-index: 10000;
+    z-index: 401;
     bottom: 10px;
     left: 12px;
+}
+
+.units-toggle {
+    position: absolute;
+    z-index: 401;
+    top: 125px;
+    right: 12px;
+}
+
+.units-toggle .button {
+    border: none;
+    box-shadow: none !important;
+}
+
+.units-toggle .button:first-child {
+    border-radius: 4px 0px 0px 4px;
+}
+
+.units-toggle .button:last-child {
+    border-radius: 0px 4px 4px 0px;
+}
+
+.units-toggle .selected {
+    background: #209cee;
+    color: white;
 }
 
 .button-panel button {
@@ -19,12 +49,8 @@ body {
     opacity: 1;
 }
 
-.radio input {
-    margin-right: 5px;
-}
-
-.is-checkradio[type=radio]+label::after, .is-checkradio[type=radio]+label:after {
-    background: white;
+.modal-card {
+    max-width: 90%;
 }
 
 .saved-route-row {
