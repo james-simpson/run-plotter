@@ -61,6 +61,10 @@ body {
     height: 22px;
 }
 
+.advanced-route-ops {
+    margin-top: 6px;
+}
+
 .button-panel button {
     margin-right: 6px;
 }

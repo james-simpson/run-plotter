@@ -40,14 +40,12 @@
 (defn units-toggle
   [units]
   [:div.units-toggle
-   [:button.button
-    {:on-click #(rf/dispatch [:change-units :km])
-     :class (if (= units :km) "selected")}
-    "km"]
-   [:button.button
-    {:on-click #(rf/dispatch [:change-units :miles])
-     :class (if (= units :miles) "selected")}
-    "miles"]])
+   (for [unit [:km :miles]]
+     ^{:key unit}
+     [:button.button
+      {:on-click #(rf/dispatch [:change-units unit])
+       :class (if (= units unit) "selected")}
+      (name unit)])])
 
 (defn- centre-map!
   [state]
@@ -61,41 +59,34 @@
         (rf/dispatch [:set-location [lat lng]])
         (.setView map-obj #js [lat lng] zoom)))))
 
-(defn centre-button
+(defn- centre-button
   [state]
   [:button.button.centre-map
    {:on-click #(centre-map! state)}
    [:img {:src "/img/location.svg"
           :style {:height "25px"}}]])
 
+(defn- route-op-button
+  ([text dispatch-event]
+   (route-op-button text dispatch-event false))
+  ([text dispatch-event disabled?]
+   [:button.button
+    {:on-click #(rf/dispatch [dispatch-event])
+     :disabled disabled?} text]))
+
 (defn- route-operations-panel
   [undos? redos? offer-return-routes? distance]
   [:div.button-panel
    [:div
-    [:button.button
-     {:on-click #(rf/dispatch [:initiate-save])} "Save"]
-    [:button.button
-     {:on-click #(rf/dispatch [:clear-route])} "Clear"]
-    [:button.button
-     {:on-click #(rf/dispatch [:undo])
-      :disabled (not undos?)} "Undo"]
-    [:button.button
-     {:on-click #(rf/dispatch [:redo])
-      :disabled (not redos?)} "Redo"]]
-   [:div {:style {:margin-top "6px"}}
-    [:button.button
-     {:on-click #(rf/dispatch [:plot-shortest-return-route])
-      :disabled (not offer-return-routes?)}
-     "Back to start"]
-    [:button.button
-     {:on-click #(rf/dispatch [:plot-same-route-back])
-      :disabled (not offer-return-routes?)}
-     "Same route back"]
-    [:button.button
-     {:on-click #(rf/dispatch [:open-pace-calculator])
-      :disabled (= distance 0)
-      }
-     "Calculate pace"]]])
+    [route-op-button "Save" :initiate-save]
+    [route-op-button "Clear" :clear-route]
+    [route-op-button "Undo" :undo (not undos?)]
+    [route-op-button "Redo" :redo (not redos?)]
+    [route-op-button "Save" :initiate-save]]
+   [:div.advanced-route-ops
+    [route-op-button "Back to start" :plot-shortest-return-route (not offer-return-routes?)]
+    [route-op-button "Same route back" :plot-same-route-back (not offer-return-routes?)]
+    [route-op-button "Calculate pace" :open-pace-calculator (= distance 0)]]])
 
 (defn- save-route-modal
   [show-save-form? route-name]
@@ -278,7 +269,7 @@
 
              (if-let [location @device-location]
                [Marker {:position location
-                        :icon (js/L.divIcon #js {:html "<img src=\"/img/location.svg\"/>"
+                        :icon (js/L.divIcon #js {:html "<img src='/img/location.svg'/>"
                                                  :className "location-marker"})}])
 
              (if-let [start (first @co-ords)]
