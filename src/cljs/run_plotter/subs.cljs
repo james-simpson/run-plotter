@@ -1,55 +1,36 @@
 (ns run-plotter.subs
   (:require
-    [re-frame.core :as re-frame]))
+    [re-frame.core :as rf]))
 
-(re-frame/reg-sub
-  ::active-panel
-  (fn [db _]
-    (:active-panel db)))
+(rf/reg-sub ::active-panel :active-panel)
 
-(re-frame/reg-sub
-  ::waypoints
-  (fn [db]
-    (get-in db [:route :waypoints])))
+(rf/reg-sub ::waypoints (fn [db]
+                          (get-in db [:route :waypoints])))
 
-(re-frame/reg-sub
-  ::co-ords
-  (fn [db]
-    (get-in db [:route :co-ords])))
+(rf/reg-sub ::co-ords (fn [db]
+                        (get-in db [:route :co-ords])))
 
-(re-frame/reg-sub
-  ::name
-  (fn [db]
-    (get-in db [:route :name])))
+(rf/reg-sub ::name (fn [db]
+                     (get-in db [:route :name])))
 
-(re-frame/reg-sub
-  ::distance
-  (fn [db]
-    (get-in db [:route :distance])))
+(rf/reg-sub ::distance (fn [db]
+                         (get-in db [:route :distance])))
 
-(re-frame/reg-sub
-  ::units
-  (fn [db] (:units db)))
+(rf/reg-sub ::units :units)
 
-(re-frame/reg-sub
-  ::centre
-  (fn [db] (:centre db)))
+(rf/reg-sub ::centre :centre)
 
-(re-frame/reg-sub
-  ::device-location
-  (fn [db] (:device-location db)))
+(rf/reg-sub ::device-location :device-location)
 
-(re-frame/reg-sub
-  ::zoom
-  (fn [db] (:zoom db)))
+(rf/reg-sub ::zoom :zoom)
 
-(re-frame/reg-sub
+(rf/reg-sub
   ::offer-return-routes?
   (fn [{{:keys [co-ords]} :route}]
     (and (> (count co-ords) 1)
          (not= (first co-ords) (last co-ords)))))
 
-(re-frame/reg-sub
+(rf/reg-sub
   ::route-time
   (fn [db]
     (let [{:keys [hours mins secs] :as route-time} (:route-time db)
@@ -58,17 +39,14 @@
                            (or secs 0))]
       (assoc route-time :total-seconds total-seconds))))
 
-(re-frame/reg-sub
+(rf/reg-sub
   ::save-in-progress?
   (fn [db _]
     (:save-in-progress? db)))
 
-(re-frame/reg-sub
-  ::show-pace-calculator?
-  (fn [db _]
-    (:show-pace-calculator? db)))
+(rf/reg-sub ::show-pace-calculator? :show-pace-calculator?)
 
-(re-frame/reg-sub
+(rf/reg-sub
   ::saved-routes
   (fn [db]
     (->> (:saved-routes db)
