@@ -29,8 +29,19 @@
 
 (re-frame/reg-sub
   ::units
-  (fn [db]
-    (:units db)))
+  (fn [db] (:units db)))
+
+(re-frame/reg-sub
+  ::centre
+  (fn [db] (:centre db)))
+
+(re-frame/reg-sub
+  ::device-location
+  (fn [db] (:device-location db)))
+
+(re-frame/reg-sub
+  ::zoom
+  (fn [db] (:zoom db)))
 
 (re-frame/reg-sub
   ::offer-return-routes?

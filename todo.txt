@@ -4,3 +4,4 @@
 - Centre map when using 'Back to start', 'Shortest route back' etc.
 - 'Rejoin route back' button
 - Fix top bar on mobile
+- Tidy up subs.cljs - shorter functions?

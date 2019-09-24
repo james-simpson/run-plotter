@@ -25,10 +25,20 @@
   :show-toast
   (fn [[message type]]
     (bulma-toast/toast #js {:message message
-                              :position "top-center"
-                              :type (case type
-                                      :success "is-success"
-                                      :failure "is-danger")})))
+                            :position "top-center"
+                            :type (case type
+                                    :success "is-success"
+                                    :failure "is-danger")})))
+
+(rf/reg-fx
+  :pan-map
+  (fn [[map-obj co-ords]]
+    (.panTo map-obj (clj->js co-ords))))
+
+(rf/reg-event-db
+  :set-map-obj
+  (fn [db [_ map-obj]]
+    (assoc db :map-obj map-obj)))
 
 ; TODO - move to server side and regenerate token
 (def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
@@ -66,7 +76,8 @@
           distance (:distance route)]
       {:db (-> db
                (assoc-in [:route :co-ords] new-co-ords)
-               (update-in [:route :distance] #(+ % distance)))})))
+               (update-in [:route :distance] #(+ % distance)))
+       :pan-map [(:map-obj db) (last new-co-ords)]})))
 
 (rf/reg-event-fx
   :routing-failure
@@ -132,6 +143,12 @@
   :route-time-updated
   (fn [db [_ time-unit value]]
     (assoc-in db [:route-time time-unit] value)))
+
+(rf/reg-event-db
+  :set-location
+  (fn [db [_ [lat lng]]]
+    (assoc db :device-location [lat lng]
+              :zoom 16)))
 
 ;;
 ;; ajax

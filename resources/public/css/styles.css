@@ -40,6 +40,13 @@ body {
     color: white;
 }
 
+.centre-map {
+    position: absolute;
+    z-index: 401;
+    top: 175px;
+    right: 12px;
+}
+
 .button-panel button {
     margin-right: 6px;
 }

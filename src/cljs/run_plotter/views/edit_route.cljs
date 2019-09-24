@@ -39,10 +39,6 @@
 
 (defn units-toggle
   [units]
-  ;(radio-buttons {:name "units"
-  ;                :selected-value units
-  ;                :options [[:km "km"] [:miles "miles"]]
-  ;                :on-change (fn [value] (re-frame/dispatch [:change-units value]))})
   [:div.units-toggle
    [:button.button
     {:on-click #(re-frame/dispatch [:change-units :km])
@@ -51,9 +47,24 @@
    [:button.button
     {:on-click #(re-frame/dispatch [:change-units :miles])
      :class (if (= units :miles) "selected")}
-    "miles"]]
-  )
+    "miles"]])
 
+(defn- centre-map!
+  [state]
+  (js/navigator.geolocation.getCurrentPosition
+    (fn [position]
+      (let [co-ords (.-coords position)
+            lat (.-latitude co-ords)
+            lng (.-longitude co-ords)
+            zoom 16
+            map-obj (:map-obj @state)]
+        (re-frame/dispatch [:set-location [lat lng]])
+        (.setView map-obj #js [lat lng] zoom)))))
+
+(defn centre-button
+  [state]
+  [:button.button.centre-map
+   {:on-click #(centre-map! state)} "Centre"])
 
 (defn- route-operations-panel
   [undos? redos? offer-return-routes?]
@@ -201,45 +212,60 @@
   (reagent/adapt-react-class
     (react-leaflet/withLeaflet (reagent/reactify-component poly-decorator))))
 
-(defn edit-route-panel []
-  (let [state (atom {})
-        ref-fn (fn [el] (swap! state assoc :map-obj (if el (.-leafletElement el))))
-        co-ords (re-frame/subscribe [::subs/co-ords])
-        ; the :undos? and :redos? subscriptions are added by the re-frame-undo
-        ; library, along with the :undo and :redo event handlers
-        undos? (re-frame/subscribe [:undos?])
-        redos? (re-frame/subscribe [:redos?])
-        offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
-        distance (re-frame/subscribe [::subs/distance])
-        route-name (re-frame/subscribe [::subs/name])
-        units (re-frame/subscribe [::subs/units])
-        save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])
-        route-time (re-frame/subscribe [::subs/route-time])]
-    [:div
-     [Map {:ref ref-fn
-           :center [51.437382 -2.590950]
-           :zoom 16
-           :style {:height "95vh"}
-           :on-click (fn [^js/mapClickEvent e]
-                       (let [[lat lng] [e.latlng.lat e.latlng.lng]]
-                         (.panTo (:map-obj @state) #js [lat lng])
-                         (re-frame/dispatch [:add-waypoint lat lng])))}
+(defn edit-route-panel
+  []
+  (let [state (atom {})]
+    (reagent/create-class
+      {:display-name "edit-route-panel"
+       :component-did-mount #(centre-map! state)
+       :reagent-render
+       (fn []
+         (let [ref-fn (fn [el]
+                        (swap! state assoc :map-obj (if el (.-leafletElement el)))
+                        (re-frame/dispatch [:set-map-obj (if el (.-leafletElement el))]))
+               centre (re-frame/subscribe [::subs/centre])
+               zoom (re-frame/subscribe [::subs/zoom])
+               device-location (re-frame/subscribe [::subs/device-location])
+               co-ords (re-frame/subscribe [::subs/co-ords])
+               ; the :undos? and :redos? subscriptions are added by the re-frame-undo
+               ; library, along with the :undo and :redo event handlers
+               undos? (re-frame/subscribe [:undos?])
+               redos? (re-frame/subscribe [:redos?])
+               offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
+               distance (re-frame/subscribe [::subs/distance])
+               route-name (re-frame/subscribe [::subs/name])
+               units (re-frame/subscribe [::subs/units])
+               save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])
+               route-time (re-frame/subscribe [::subs/route-time])]
+           [:div
+            [Map {:ref ref-fn
+                  :center @centre
+                  :zoom @zoom
+                  :style {:height "95vh"}
+                  :on-click (fn [^js/mapClickEvent e]
+                              (let [[lat lng] [e.latlng.lat e.latlng.lng]]
+                                (re-frame/dispatch [:add-waypoint lat lng])))}
 
-      [TileLayer {:url (str "https://api.tiles.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=" config/mapbox-token)
-                  :attribution "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>"}]
+             [TileLayer {:url (str "https://api.tiles.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=" config/mapbox-token)
+                         :attribution "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>"}]
 
-      [PolylineDecorator {:co-ords @co-ords}]
+             [PolylineDecorator {:co-ords @co-ords}]
 
-      (if-let [start (first @co-ords)]
-        [Marker {:position start
-                 :icon (js/L.icon.glyph #js {:glyph "A"})}])
+             (if-let [location @device-location]
+               [Marker {:position location
+                        :icon (js/L.icon.glyph #js {:glyph "X"})}])
 
-      (if-let [end (last (rest @co-ords))]
-        [Marker {:position end
-                 :icon (js/L.icon.glyph #js {:glyph "B"})}])]
-     [distance-panel @distance @units]
-     [route-operations-panel @undos? @redos? @offer-return-routes?]
-     [units-toggle @units]
-     [:div
-      [pace-calculator @distance @route-time]]
-     [save-route-modal @save-in-progress? @route-name]]))
+             (if-let [start (first @co-ords)]
+               [Marker {:position start
+                        :icon (js/L.icon.glyph #js {:glyph "A"})}])
+
+             (if-let [end (last (rest @co-ords))]
+               [Marker {:position end
+                        :icon (js/L.icon.glyph #js {:glyph "B"})}])]
+            [distance-panel @distance @units]
+            [units-toggle @units]
+            [centre-button state]
+            [route-operations-panel @undos? @redos? @offer-return-routes?]
+            [:div
+             [pace-calculator @distance @route-time]]
+            [save-route-modal @save-in-progress? @route-name]]))})))

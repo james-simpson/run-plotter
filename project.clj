@@ -12,11 +12,13 @@
                  [duct/module.sql "0.5.0"]
                  [org.postgresql/postgresql "42.2.5"]
                  [com.layerware/hugsql "0.4.9"]
-                 [honeysql "0.9.4"]]
+                 [honeysql "0.9.4"]
+
+                 [thheller/shadow-cljs "2.8.56"]]
 
   :main run-plotter.core
 
-  :source-paths ["src/clj"]
+  :source-paths ["src/clj", "src/cljs"]
 
   :profiles
   {:dev
