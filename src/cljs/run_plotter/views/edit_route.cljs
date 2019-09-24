@@ -64,7 +64,9 @@
 (defn centre-button
   [state]
   [:button.button.centre-map
-   {:on-click #(centre-map! state)} "Centre"])
+   {:on-click #(centre-map! state)}
+   [:img {:src "/img/location.svg"
+          :style {:height "25px"}}]])
 
 (defn- route-operations-panel
   [undos? redos? offer-return-routes?]
@@ -253,7 +255,8 @@
 
              (if-let [location @device-location]
                [Marker {:position location
-                        :icon (js/L.icon.glyph #js {:glyph "X"})}])
+                        :icon (js/L.divIcon #js {:html  "<img src=\"/img/location.svg\"/>"
+                                                 :className "location-marker"})}])
 
              (if-let [start (first @co-ords)]
                [Marker {:position start
