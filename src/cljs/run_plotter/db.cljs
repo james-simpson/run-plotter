@@ -16,4 +16,5 @@
            ; total route distance, in meters
            :distance 0}
 
-   :save-in-progress? false})
+   :save-in-progress? false
+   :show-pace-calculator? false})

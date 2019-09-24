@@ -155,6 +155,16 @@
     (assoc db :device-location [lat lng]
               :zoom 16)))
 
+(rf/reg-event-db
+  :open-pace-calculator
+  (fn [db]
+    (assoc db :show-pace-calculator? true)))
+
+(rf/reg-event-db
+  :close-pace-calculator
+  (fn [db]
+    (assoc db :show-pace-calculator? false)))
+
 ;;
 ;; ajax
 ;;

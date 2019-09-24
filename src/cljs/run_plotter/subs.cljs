@@ -64,6 +64,11 @@
     (:save-in-progress? db)))
 
 (re-frame/reg-sub
+  ::show-pace-calculator?
+  (fn [db _]
+    (:show-pace-calculator? db)))
+
+(re-frame/reg-sub
   ::saved-routes
   (fn [db]
     (->> (:saved-routes db)

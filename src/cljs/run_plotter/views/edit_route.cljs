@@ -69,7 +69,7 @@
           :style {:height "25px"}}]])
 
 (defn- route-operations-panel
-  [undos? redos? offer-return-routes?]
+  [undos? redos? offer-return-routes? distance]
   [:div.button-panel
    [:div
     [:button.button
@@ -90,7 +90,12 @@
     [:button.button
      {:on-click #(rf/dispatch [:plot-same-route-back])
       :disabled (not offer-return-routes?)}
-     "Same route back"]]])
+     "Same route back"]
+    [:button.button
+     {:on-click #(rf/dispatch [:open-pace-calculator])
+      :disabled (= distance 0)
+      }
+     "Calculate pace"]]])
 
 (defn- save-route-modal
   [show-save-form? route-name]
@@ -146,24 +151,27 @@
                          [:route-time-updated unit (int e.target.value)]))}])
 
 (defn- pace-calculator
-  [route-distance {:keys [hours mins secs total-seconds]}]
+  [route-distance distance-units {:keys [hours mins secs total-seconds]}]
   (let [seconds-per-km (/ total-seconds (/ route-distance 1000))
         common-distance-times (map (fn [[distance label]]
                                      {:label label
                                       :time (format-duration (* distance seconds-per-km))})
                                    common-distances)
-        show-results? (and (> total-seconds 0) (> route-distance 0))]
-    [:div.panel
-     [:p.panel-heading "Pace calculator"]
-     [:div.panel-block
-      [:div.field
-       [:label.label "Time taken to complete route"]
-       [:div.pace-inputs
-        [:div [:label "hours"] [time-input :hours hours]]
-        [:div [:label "mins"] [time-input :mins mins]]
-        [:div [:label "secs"] [time-input :secs secs]]]]]
+        show-results? (> total-seconds 0)
+        pretty-distance (str (utils/format-distance route-distance distance-units)
+                             " " (name distance-units))]
+    [:div.pace-calculator
+     [:div.field
+      [:label.label "Distance"]
+      [:p pretty-distance]]
+     [:div.field
+      [:label.label "Time taken to complete route"]
+      [:div.pace-inputs
+       [:div [:label "hours"] [time-input :hours hours]]
+       [:div [:label "mins"] [time-input :mins mins]]
+       [:div [:label "secs"] [time-input :secs secs]]]]
      (if show-results?
-       [:div.panel-block
+       [:div
         [:table.table
          [:thead [:tr [:td "Distance"] [:td "Time"]]]
          [:tbody
@@ -172,6 +180,20 @@
             [:tr
              [:td label]
              [:td time]])]]])]))
+
+(defn- pace-calculator-modal
+  [show-pace-calculator? route-distance distance-units route-time]
+  (let [close-fn #(rf/dispatch [:close-pace-calculator])]
+    [:div.modal {:style {:z-index 1000}
+                 :class (if show-pace-calculator? "is-active" "")}
+     [:div.modal-background {:on-click close-fn}]
+     [:div.modal-card
+      [:header.modal-card-head
+       [:p.modal-card-title "Calculate pace"]
+       [:button.delete {:aria-label "close"
+                        :on-click close-fn}]]
+      [:section.modal-card-body
+       [pace-calculator route-distance distance-units route-time]]]]))
 
 (def Map (reagent/adapt-react-class react-leaflet/Map))
 (def TileLayer (reagent/adapt-react-class react-leaflet/TileLayer))
@@ -238,6 +260,7 @@
                route-name (rf/subscribe [::subs/name])
                units (rf/subscribe [::subs/units])
                save-in-progress? (rf/subscribe [::subs/save-in-progress?])
+               show-pace-calculator? (rf/subscribe [::subs/show-pace-calculator?])
                route-time (rf/subscribe [::subs/route-time])]
            [:div
             [Map {:ref ref-fn
@@ -255,7 +278,7 @@
 
              (if-let [location @device-location]
                [Marker {:position location
-                        :icon (js/L.divIcon #js {:html  "<img src=\"/img/location.svg\"/>"
+                        :icon (js/L.divIcon #js {:html "<img src=\"/img/location.svg\"/>"
                                                  :className "location-marker"})}])
 
              (if-let [start (first @co-ords)]
@@ -265,10 +288,10 @@
              (if-let [end (last (rest @co-ords))]
                [Marker {:position end
                         :icon (js/L.icon.glyph #js {:glyph "B"})}])]
+
             [distance-panel @distance @units]
             [units-toggle @units]
             [centre-button state]
-            [route-operations-panel @undos? @redos? @offer-return-routes?]
-            [:div
-             [pace-calculator @distance @route-time]]
+            [route-operations-panel @undos? @redos? @offer-return-routes? @distance]
+            [pace-calculator-modal @show-pace-calculator? @distance @units @route-time]
             [save-route-modal @save-in-progress? @route-name]]))})))

@@ -98,14 +98,13 @@ body {
 }
 
 .pace-inputs .input {
-    width: 70px;
-    font-size: 1.3em;
+    width: 60px;
+    font-size: 1.1em;
 }
 
 .pace-inputs label {
     display: block;
     text-align: center;
-    font-size: 1.1em;
 }
 
 .panel {
@@ -117,8 +116,12 @@ body {
     padding: 1.2em 1.5em;
 }
 
-.panel-block .table {
-    font-size: 1.1em;
+.pace-calculator {
+    font-size: 1.2em;
+}
+
+.pace-calculator .table {
+    width: 100%;
 }
 
 .saved-routes-table {
