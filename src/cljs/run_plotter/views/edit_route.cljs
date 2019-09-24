@@ -1,6 +1,6 @@
 (ns run-plotter.views.edit-route
   (:require
-    [re-frame.core :as re-frame]
+    [re-frame.core :as rf]
     [run-plotter.subs :as subs]
     [run-plotter.utils :as utils]
     [run-plotter.config :as config]
@@ -41,11 +41,11 @@
   [units]
   [:div.units-toggle
    [:button.button
-    {:on-click #(re-frame/dispatch [:change-units :km])
+    {:on-click #(rf/dispatch [:change-units :km])
      :class (if (= units :km) "selected")}
     "km"]
    [:button.button
-    {:on-click #(re-frame/dispatch [:change-units :miles])
+    {:on-click #(rf/dispatch [:change-units :miles])
      :class (if (= units :miles) "selected")}
     "miles"]])
 
@@ -58,7 +58,7 @@
             lng (.-longitude co-ords)
             zoom 16
             map-obj (:map-obj @state)]
-        (re-frame/dispatch [:set-location [lat lng]])
+        (rf/dispatch [:set-location [lat lng]])
         (.setView map-obj #js [lat lng] zoom)))))
 
 (defn centre-button
@@ -71,29 +71,29 @@
   [:div.button-panel
    [:div
     [:button.button
-     {:on-click #(re-frame/dispatch [:initiate-save])} "Save"]
+     {:on-click #(rf/dispatch [:initiate-save])} "Save"]
     [:button.button
-     {:on-click #(re-frame/dispatch [:clear-route])} "Clear"]
+     {:on-click #(rf/dispatch [:clear-route])} "Clear"]
     [:button.button
-     {:on-click #(re-frame/dispatch [:undo])
+     {:on-click #(rf/dispatch [:undo])
       :disabled (not undos?)} "Undo"]
     [:button.button
-     {:on-click #(re-frame/dispatch [:redo])
+     {:on-click #(rf/dispatch [:redo])
       :disabled (not redos?)} "Redo"]]
    [:div {:style {:margin-top "6px"}}
     [:button.button
-     {:on-click #(re-frame/dispatch [:plot-shortest-return-route])
+     {:on-click #(rf/dispatch [:plot-shortest-return-route])
       :disabled (not offer-return-routes?)}
      "Back to start"]
     [:button.button
-     {:on-click #(re-frame/dispatch [:plot-same-route-back])
+     {:on-click #(rf/dispatch [:plot-same-route-back])
       :disabled (not offer-return-routes?)}
      "Same route back"]]])
 
 (defn- save-route-modal
   [show-save-form? route-name]
-  (let [cancel-fn #(re-frame/dispatch [:cancel-save])
-        confirm-fn #(re-frame/dispatch [:confirm-save])]
+  (let [cancel-fn #(rf/dispatch [:cancel-save])
+        confirm-fn #(rf/dispatch [:confirm-save])]
     [:div.modal {:style {:z-index 1000}
                  :class (if show-save-form? "is-active" "")}
      [:div.modal-background {:on-click cancel-fn}]
@@ -109,7 +109,7 @@
          :style {:font-size "1.5em"}
          :value route-name
          :on-change (fn [e]
-                      (re-frame/dispatch [:route-name-updated e.target.value]))}]]
+                      (rf/dispatch [:route-name-updated e.target.value]))}]]
       [:footer.modal-card-foot
        [:button.button.is-info {:on-click confirm-fn} "Save changes"]
        [:button.button {:on-click cancel-fn} "Cancel"]]]]))
@@ -140,7 +140,7 @@
   [unit value]
   [:input.input
    {:value value
-    :on-change (fn [e] (re-frame/dispatch
+    :on-change (fn [e] (rf/dispatch
                          [:route-time-updated unit (int e.target.value)]))}])
 
 (defn- pace-calculator
@@ -222,21 +222,21 @@
        (fn []
          (let [ref-fn (fn [el]
                         (swap! state assoc :map-obj (if el (.-leafletElement el)))
-                        (re-frame/dispatch [:set-map-obj (if el (.-leafletElement el))]))
-               centre (re-frame/subscribe [::subs/centre])
-               zoom (re-frame/subscribe [::subs/zoom])
-               device-location (re-frame/subscribe [::subs/device-location])
-               co-ords (re-frame/subscribe [::subs/co-ords])
+                        (rf/dispatch [:set-map-obj (if el (.-leafletElement el))]))
+               centre (rf/subscribe [::subs/centre])
+               zoom (rf/subscribe [::subs/zoom])
+               device-location (rf/subscribe [::subs/device-location])
+               co-ords (rf/subscribe [::subs/co-ords])
                ; the :undos? and :redos? subscriptions are added by the re-frame-undo
                ; library, along with the :undo and :redo event handlers
-               undos? (re-frame/subscribe [:undos?])
-               redos? (re-frame/subscribe [:redos?])
-               offer-return-routes? (re-frame/subscribe [::subs/offer-return-routes?])
-               distance (re-frame/subscribe [::subs/distance])
-               route-name (re-frame/subscribe [::subs/name])
-               units (re-frame/subscribe [::subs/units])
-               save-in-progress? (re-frame/subscribe [::subs/save-in-progress?])
-               route-time (re-frame/subscribe [::subs/route-time])]
+               undos? (rf/subscribe [:undos?])
+               redos? (rf/subscribe [:redos?])
+               offer-return-routes? (rf/subscribe [::subs/offer-return-routes?])
+               distance (rf/subscribe [::subs/distance])
+               route-name (rf/subscribe [::subs/name])
+               units (rf/subscribe [::subs/units])
+               save-in-progress? (rf/subscribe [::subs/save-in-progress?])
+               route-time (rf/subscribe [::subs/route-time])]
            [:div
             [Map {:ref ref-fn
                   :center @centre
@@ -244,7 +244,7 @@
                   :style {:height "95vh"}
                   :on-click (fn [^js/mapClickEvent e]
                               (let [[lat lng] [e.latlng.lat e.latlng.lng]]
-                                (re-frame/dispatch [:add-waypoint lat lng])))}
+                                (rf/dispatch [:add-waypoint lat lng])))}
 
              [TileLayer {:url (str "https://api.tiles.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=" config/mapbox-token)
                          :attribution "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>"}]

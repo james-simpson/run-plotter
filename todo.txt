@@ -1,7 +1,6 @@
 - Fix initial zoom of saved routes map
 - Open/edit saved route
 - Choose initial position from location data
-- Centre map when using 'Back to start', 'Shortest route back' etc.
 - 'Rejoin route back' button
 - Fix top bar on mobile
 - Tidy up subs.cljs - shorter functions?

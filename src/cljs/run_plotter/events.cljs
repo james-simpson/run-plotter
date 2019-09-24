@@ -44,6 +44,12 @@
 (def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
 
 (rf/reg-event-fx
+  :set-co-ords
+  (fn [{:keys [db]} [_ co-ords]]
+    {:db (assoc-in db [:route :co-ords] co-ords)
+     :pan-map [(:map-obj db) (last co-ords)]}))
+
+(rf/reg-event-fx
   :add-waypoint
   (undo/undoable "add waypoint")
   (fn [{:keys [db]} [_ lat lng]]
@@ -59,7 +65,7 @@
                       :response-format (ajax/json-response-format {:keywords? true})
                       :on-success [:routing-success]
                       :on-failure [:routing-failure]}})
-      {:db (update-in db [:route :co-ords] #(conj % [lat lng]))})))
+      {:dispatch [:set-co-ords (conj (get-in db [:route :co-ords]) [lat lng])]})))
 
 (rf/reg-event-fx
   :routing-success
@@ -74,9 +80,8 @@
                         co-ords
                         (concat prev-co-ords co-ords))
           distance (:distance route)]
-      {:db (-> db
-               (assoc-in [:route :co-ords] new-co-ords)
-               (update-in [:route :distance] #(+ % distance)))
+      {:db (update-in db [:route :distance] #(+ % distance))
+       :dispatch [:set-co-ords new-co-ords]
        :pan-map [(:map-obj db) (last new-co-ords)]})))
 
 (rf/reg-event-fx
@@ -114,14 +119,14 @@
       {:db db
        :dispatch [:add-waypoint lat lng]})))
 
-(rf/reg-event-db
+(rf/reg-event-fx
   :plot-same-route-back
   (undo/undoable "same route back")
-  (fn [db _]
-    (let [return-waypoints (->> (:route db) :co-ords butlast reverse)]
-      (-> db
-          (update-in [:route :co-ords] #(concat % return-waypoints))
-          (update-in [:route :distance] #(* % 2))))))
+  (fn [{:keys [db]} _]
+    (let [co-ords (get-in db [:route :co-ords])
+          return-co-ords (butlast (reverse co-ords))]
+      {:db (-> db (update-in [:route :distance] #(* % 2)))
+       :dispatch [:set-co-ords (concat co-ords return-co-ords)]})))
 
 (rf/reg-event-db
   :route-updated
