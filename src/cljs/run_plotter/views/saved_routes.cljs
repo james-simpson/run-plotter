@@ -61,7 +61,7 @@
                                :positions poly-co-ords}
                               polyline-styles)])]]
 
-         [:div.column.is-one-third-desktop
+         [:div.column.is-one-third-desktop.saved-routes-column
           [:div.saved-routes-panel
            [:div.panel-block
             [:table.table.saved-routes-table
