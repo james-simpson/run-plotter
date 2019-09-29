@@ -45,12 +45,12 @@
                                       (assoc polys id (polyline/decode polystring)))
                                     {}
                                     routes)]
-        [:div.columns
-         [:div.column
+        [:div.columns.is-desktop.saved-route-columns
+         [:div.column.map-column
           [Map {:ref ref-fn
                 :center [51.437382 -2.590950]
                 :zoom 14
-                :style {:height "80vh"}}
+                :style {:height "100%"}}
 
            [TileLayer {:url (str "https://api.tiles.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{z}/{x}/{y}?access_token=" config/mapbox-token)
                        :attribution "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>"}]
@@ -61,9 +61,8 @@
                                :positions poly-co-ords}
                               polyline-styles)])]]
 
-         [:div.column.is-one-third
-          [:div.panel
-           [:p.panel-heading "Saved routes"]
+         [:div.column.is-one-third-desktop
+          [:div.saved-routes-panel
            [:div.panel-block
             [:table.table.saved-routes-table
              [:thead

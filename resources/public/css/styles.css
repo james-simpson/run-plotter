@@ -131,3 +131,27 @@ body {
 .saved-routes-table {
     width: 100%;
 }
+
+.saved-routes-panel {
+    background: white;
+    max-height: 45vh;
+    overflow: auto;
+}
+
+.saved-route-columns .column {
+    padding: 0;
+}
+
+.map-column {
+    height: 50vh;
+}
+
+@media (min-width: 1024px) {
+    .map-column {
+        height: 95vh;
+    }
+
+    .saved-routes-panel {
+        max-height: 95vh;
+    }
+}

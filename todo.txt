@@ -2,5 +2,5 @@
 - Open/edit saved route
 - Choose initial position from location data
 - 'Rejoin route back' button
-- Fix top bar on mobile
-- Tidy up subs.cljs - shorter functions?
+- Sort out saved routes on mobile
+
