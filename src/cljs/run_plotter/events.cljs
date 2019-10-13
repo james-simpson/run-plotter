@@ -10,6 +10,8 @@
     [clojure.string :as str]
     ["bulma-toast" :as bulma-toast]))
 
+(goog-define API_BASE_URL "")
+
 (rf/reg-event-fx
   ::initialize-db
   (fn-traced [_ _]
@@ -209,7 +211,7 @@
   :load-saved-routes
   (fn [_]
     {:http-xhrio {:method :get
-                  :uri "/routes"
+                  :uri (str API_BASE_URL "/routes")
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-routes-success]
                   :on-failure [:get-routes-failure]}}))
@@ -229,7 +231,7 @@
   :load-route
   (fn [_ [_ id]]
     {:http-xhrio {:method :get
-                  :uri (str "/routes/" id)
+                  :uri (str API_BASE_URL "/routes/" id)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-route-success]
                   :on-failure [:get-route-failure]}}))
@@ -239,7 +241,6 @@
   (fn [{:keys [db]} [_ route]]
     (let [polyline (:polyline route)
           co-ords (polyline/decode polyline)]
-      (print "success")
       {:db (assoc db :route (-> route
                                 (dissoc :polyline)
                                 (assoc :co-ords co-ords)))
@@ -258,7 +259,7 @@
           polyline (polyline/encode (:co-ords route))]
       {:db (assoc db :save-in-progress? false)
        :http-xhrio {:method :post
-                    :uri "/routes"
+                    :uri (str API_BASE_URL "/routes")
                     :params (assoc route :polyline polyline)
                     :format (ajax/json-request-format)
                     :response-format (ajax/json-response-format {:keywords? true})
@@ -282,7 +283,7 @@
   :delete-route
   (fn [_ [_ id]]
     {:http-xhrio {:method :delete
-                  :uri (str "/routes/" id)
+                  :uri (str API_BASE_URL "/routes/" id)
                   :format (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:delete-route-success]

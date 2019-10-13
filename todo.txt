@@ -1,6 +1,3 @@
-- Fix initial zoom of saved routes map
-- Open/edit saved route
-- Choose initial position from location data
 - 'Rejoin route back' button
 - Update readme with description & dev setup
 
