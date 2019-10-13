@@ -18,6 +18,23 @@
     (get-in db [:route :co-ords])))
 
 (re-frame/reg-sub
+  ::map-bounds
+  (fn [db]
+    (let [co-ords (get-in db [:route :co-ords])
+          lats (map first co-ords)
+          lngs (map second co-ords)
+          min-lat (apply min lats)
+          max-lat (apply max lats)
+          min-lng (apply min lngs)
+          max-lng (apply max lngs)]
+      [[min-lat min-lng] [max-lat max-lng]])))
+
+(re-frame/reg-sub
+  ::route-id
+  (fn [db]
+    (get-in db [:route :id])))
+
+(re-frame/reg-sub
   ::name
   (fn [db]
     (get-in db [:route :name])))

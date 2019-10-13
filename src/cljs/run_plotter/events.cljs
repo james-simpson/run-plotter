@@ -30,15 +30,50 @@
                                     :success "is-success"
                                     :failure "is-danger")})))
 
+(rf/reg-event-db
+  :set-map-obj
+  (fn [db [_ map-obj]]
+    (assoc db :map-obj map-obj)))
+
+(defn- co-ords->map-bounds
+  [co-ords]
+  (let [lats (map first co-ords)
+        lngs (map second co-ords)
+        min-lat (apply min lats)
+        max-lat (apply max lats)
+        min-lng (apply min lngs)
+        max-lng (apply max lngs)]
+    [[min-lat min-lng] [max-lat max-lng]]))
+
+(rf/reg-fx
+  :centre-on-users-location
+  (fn [map-obj]
+    (js/navigator.geolocation.getCurrentPosition
+      (fn [position]
+        (let [co-ords (.-coords position)
+              lat (.-latitude co-ords)
+              lng (.-longitude co-ords)
+              zoom 16]
+          (rf/dispatch [:set-location [lat lng]])
+          (.setView map-obj #js [lat lng] zoom))))))
+
 (rf/reg-fx
   :pan-map
   (fn [[map-obj co-ords]]
     (.panTo map-obj (clj->js co-ords))))
 
-(rf/reg-event-db
-  :set-map-obj
-  (fn [db [_ map-obj]]
-    (assoc db :map-obj map-obj)))
+(rf/reg-fx
+  :fit-map-to-bounds
+  (fn [[map-obj co-ords]]
+    (.fitBounds map-obj (clj->js co-ords))))
+
+(rf/reg-event-fx
+  :centre-map
+  (fn [{:keys [db]} _]
+    (if (get-in db [:route :id])
+      (let [co-ords (get-in db [:route :co-ords])]
+        {:fit-map-to-bounds [(:map-obj db) (co-ords->map-bounds co-ords)]})
+      {:centre-on-users-location (:map-obj db)})))
 
 ; TODO - move to server side and regenerate token
 (def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
@@ -189,6 +224,32 @@
   (fn [_]
     {:show-toast ["Unable to fetch saved routes" :failure]}))
 
+;; get saved route
+(rf/reg-event-fx
+  :load-route
+  (fn [_ [_ id]]
+    {:http-xhrio {:method :get
+                  :uri (str "/routes/" id)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success [:get-route-success]
+                  :on-failure [:get-route-failure]}}))
+
+(rf/reg-event-fx
+  :get-route-success
+  (fn [{:keys [db]} [_ route]]
+    (let [polyline (:polyline route)
+          co-ords (polyline/decode polyline)]
+      (print "success")
+      {:db (assoc db :route (-> route
+                                (dissoc :polyline)
+                                (assoc :co-ords co-ords)))
+       :dispatch [:set-active-panel :edit-route]})))
+
+(rf/reg-event-fx
+  :get-route-failure
+  (fn [_]
+    {:show-toast ["Unable to fetch route" :failure]}))
+
 ;; post route
 (rf/reg-event-fx
   :confirm-save
@@ -219,7 +280,7 @@
 ;; delete route
 (rf/reg-event-fx
   :delete-route
-  (fn [{:keys [db]} [_ id]]
+  (fn [_ [_ id]]
     {:http-xhrio {:method :delete
                   :uri (str "/routes/" id)
                   :format (ajax/json-request-format)

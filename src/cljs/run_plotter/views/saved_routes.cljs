@@ -6,7 +6,8 @@
     [run-plotter.config :as config]
     [reagent.core :as reagent]
     [com.michaelgaare.clojure-polyline :as polyline]
-    [react-leaflet :as react-leaflet]))
+    [react-leaflet :as react-leaflet]
+    [run-plotter.routes :as routes]))
 
 (def Map (reagent/adapt-react-class react-leaflet/Map))
 (def TileLayer (reagent/adapt-react-class react-leaflet/TileLayer))
@@ -74,7 +75,8 @@
               (for [{:keys [id name distance]} routes]
                 ^{:key id}
                 [:tr.saved-route-row
-                 {:on-mouse-over (fn [_] (highlight-polyline @state id))}
+                 {:on-click (fn [_] (routes/set-url (str "/edit/" id)))
+                  :on-mouse-over (fn [_] (highlight-polyline @state id))}
                  [:td name]
                  [:td (utils/format-distance distance units)]
                  [:td [:button.delete

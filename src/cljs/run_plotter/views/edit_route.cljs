@@ -229,10 +229,11 @@
 
 (defn edit-route-panel
   []
-  (let [state (atom {})]
+  (let [state (atom {})
+        route-id (rf/subscribe [::subs/route-id ])]
     (reagent/create-class
       {:display-name "edit-route-panel"
-       :component-did-mount #(centre-map! state)
+       :component-did-mount #(rf/dispatch [:centre-map])
        :reagent-render
        (fn []
          (let [ref-fn (fn [el]

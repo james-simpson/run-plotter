@@ -2,5 +2,5 @@
 - Open/edit saved route
 - Choose initial position from location data
 - 'Rejoin route back' button
-- Sort out saved routes on mobile
+- Update readme with description & dev setup
 

@@ -23,7 +23,7 @@
          [:div.navbar-brand
           [:a.navbar-item {:href (routes/url-for :edit-route)
                            :style {:padding-left "20px"}}
-           [:img {:src "img/runner-icon.svg"}]]
+           [:img {:src "/img/runner-icon.svg"}]]
           [:div.navbar-burger.burger
            {:class (if @menu-expanded? "is-active" "")
             :on-click #(swap! menu-expanded? not)}
@@ -37,7 +37,7 @@
                             :style {:margin-right "20px"}}
             (if @menu-expanded?
               "Github project"
-              [:img {:src "img/github-logo.svg"}])]]]]))))
+              [:img {:src "/img/github-logo.svg"}])]]]]))))
 
 (defn base-view []
   (let [active-panel (re-frame/subscribe [::subs/active-panel])
