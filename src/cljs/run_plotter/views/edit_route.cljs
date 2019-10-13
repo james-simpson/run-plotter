@@ -130,7 +130,7 @@
   [time-in-seconds]
   (let [hours (Math/floor (/ time-in-seconds 3600))
         minutes (Math/floor (/ (- time-in-seconds (* 3600 hours)) 60))
-        seconds (mod (Math/round time-in-seconds) 60)
+        seconds (mod (Math/floor time-in-seconds) 60)
         [h m s] (map zero-pad-duration [hours minutes seconds])]
     (str (if (> hours 0) (str h ":") "") m ":" s)))
 
