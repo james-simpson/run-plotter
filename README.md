@@ -1,47 +1,41 @@
 # run-plotter
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
+https://run-plotter.herokuapp.com
 
-## Development Mode
+A Clojurescript web app for plotting runs, saving them and showing equivalent times for common race distances.
 
-### Run application:
+Built with [re-frame](https://github.com/Day8/re-frame)
+and [react-leaflet](https://github.com/PaulLeCam/react-leaflet).
 
+## Running
+
+In production, both the frontend and REST API backend are served by a single server.
+In dev mode, I use [shadow-cljs](https://github.com/thheller/shadow-cljs)
+to serve the frontend on port 8280 to get hot reloading.
+
+### Development Mode
+
+Start the shadow-cljs server for the frontend:
 ```
-lein clean
-lein figwheel dev
+npx shadow-cljs watch app
+```
+Start the backend server:
+```
+lein run
 ```
 
-Figwheel will automatically push cljs changes to the browser.
-
-Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
+Wait a bit, then browse to [http://localhost:8280](http://localhost:8280).
 
 ## Production Build
 
+Compile the optimised Javascript:
 ```
-lein clean
-lein with-profile prod uberjar
+npx shadow-cljs release app
 ```
-
-That should compile the clojurescript code first, and then create the standalone jar.
-
-When you run the jar you can set the port the ring server will use by setting the environment variable PORT.
-If it's not set, it will run on port 3000 by default.
-
-To deploy to heroku, first create your app:
-
+Run the server:
 ```
-heroku create
+lein run
 ```
 
-Then deploy the application:
+Wait a bit, then browse to [http://localhost:3000](http://localhost:3000).
 
-```
-git push heroku master
-```
-
-To compile clojurescript to javascript:
-
-```
-lein clean
-lein cljsbuild once min
-```
