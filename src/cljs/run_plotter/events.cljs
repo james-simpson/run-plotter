@@ -173,7 +173,7 @@
   (undo/undoable "same route back")
   (fn [{:keys [db]} _]
     (let [co-ords (get-in db [:route :co-ords])
-          return-co-ords (butlast (reverse co-ords))
+          return-co-ords (reverse (butlast co-ords))
           new-distance (* 2 (get-in db [:route :distance]))]
       {:dispatch [::set-route (concat co-ords return-co-ords) new-distance]})))
 

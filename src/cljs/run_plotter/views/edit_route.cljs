@@ -65,7 +65,7 @@
   [state]
   [:button.button.centre-map
    {:on-click #(centre-map! state)}
-   [:img {:src "/img/location.svg"
+   [:img {:src "/img/icons8-marker-96.png"
           :style {:height "25px"}}]])
 
 (defn- top-right-panel
@@ -268,7 +268,8 @@
             [Map {:ref ref-fn
                   :center @centre
                   :zoom @zoom
-                  :style {:height "95vh"}
+                  :style {:height "95vh"
+                          :cursor "crosshair"}
                   :on-click (fn [^js/mapClickEvent e]
                               (let [[lat lng] [e.latlng.lat e.latlng.lng]]
                                 (rf/dispatch [:add-waypoint lat lng])))}
@@ -280,7 +281,7 @@
 
              (if-let [location @device-location]
                [Marker {:position location
-                        :icon (js/L.divIcon #js {:html "<img src='/img/location.svg'/>"
+                        :icon (js/L.divIcon #js {:html "<img src='/img/icons8-marker-96.png'/>"
                                                  :className "location-marker"})}])
 
              (if-let [start (first @co-ords)]
