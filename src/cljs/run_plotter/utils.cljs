@@ -1,6 +1,13 @@
 (ns run-plotter.utils
   (:require
-    [goog.string :as gstring]))
+    [goog.string :as gstring]
+    [react-leaflet :as react-leaflet]))
+
+; Assumes the leaflet library has been included
+(defn distance-between-lat-lngs
+  [[lat1 lng1] [lat2 lng2]]
+  (.distanceTo (js/L.latLng lat1 lng1)
+               (js/L.latLng lat2 lng2)))
 
 (defn format-distance
   ([distance-in-meters units]

@@ -13,14 +13,7 @@
 
 (defn- distance-panel
   [value-in-meters units]
-  [:h3.subtitle {:style {:position "absolute"
-                         :top "70px"
-                         :right "10px"
-                         :z-index 401
-                         :padding "10px"
-                         :color "white"
-                         :border-radius "7px"
-                         :background "#00000080"}}
+  [:div.distance-label
    (utils/format-distance value-in-meters units 3 true)])
 
 (defn- radio-buttons
@@ -37,7 +30,7 @@
               [:label {:for value} text]])
            options)])
 
-(defn units-toggle
+(defn- units-toggle
   [units]
   [:div.units-toggle
    (for [unit [:km :miles]]
@@ -46,6 +39,15 @@
       {:on-click #(rf/dispatch [:change-units unit])
        :class (if (= units unit) "selected")}
       (name unit)])])
+
+(defn- snap-to-paths-toggle
+  [snap-to-paths]
+  [:div.snap-to-paths-toggle
+   [:label.checkbox
+    [:input {:type "checkbox"
+             :checked snap-to-paths
+             :on-change (fn [e] (rf/dispatch [:set-snap-to-paths e.target.checked]))}]
+    "Snap to paths"]])
 
 (defn- centre-map!
   [state]
@@ -66,6 +68,14 @@
    [:img {:src "/img/location.svg"
           :style {:height "25px"}}]])
 
+(defn- top-right-panel
+  [distance units snap-to-paths? state]
+  [:div.top-right-panel
+   [:div.top-right-control [distance-panel distance units]]
+   [:div.top-right-control [units-toggle units]]
+   [:div.top-right-control [snap-to-paths-toggle snap-to-paths?]]
+   [:div.top-right-control [centre-button state]]])
+
 (defn- route-op-button
   ([text dispatch-event]
    (route-op-button text dispatch-event false))
@@ -78,7 +88,6 @@
   [undos? redos? offer-return-routes? distance]
   [:div.button-panel
    [:div
-    [route-op-button "Save" :initiate-save]
     [route-op-button "Clear" :clear-route]
     [route-op-button "Undo" :undo (not undos?)]
     [route-op-button "Redo" :redo (not redos?)]
@@ -86,7 +95,7 @@
    [:div.advanced-route-ops
     [route-op-button "Back to start" :plot-shortest-return-route (not offer-return-routes?)]
     [route-op-button "Same route back" :plot-same-route-back (not offer-return-routes?)]
-    [route-op-button "Calculate pace" :open-pace-calculator (= distance 0)]]])
+    [route-op-button "Pace" :open-pace-calculator (= distance 0)]]])
 
 (defn- save-route-modal
   [show-save-form? route-name]
@@ -230,7 +239,7 @@
 (defn edit-route-panel
   []
   (let [state (atom {})
-        route-id (rf/subscribe [::subs/route-id ])]
+        route-id (rf/subscribe [::subs/route-id])]
     (reagent/create-class
       {:display-name "edit-route-panel"
        :component-did-mount #(rf/dispatch [:centre-map])
@@ -253,6 +262,7 @@
                units (rf/subscribe [::subs/units])
                save-in-progress? (rf/subscribe [::subs/save-in-progress?])
                show-pace-calculator? (rf/subscribe [::subs/show-pace-calculator?])
+               snap-to-paths? (rf/subscribe [::subs/snap-to-paths?])
                route-time (rf/subscribe [::subs/route-time])]
            [:div
             [Map {:ref ref-fn
@@ -281,9 +291,7 @@
                [Marker {:position end
                         :icon (js/L.icon.glyph #js {:glyph "B"})}])]
 
-            [distance-panel @distance @units]
-            [units-toggle @units]
-            [centre-button state]
+            [top-right-panel @distance @units @snap-to-paths? state]
             [route-operations-panel @undos? @redos? @offer-return-routes? @distance]
             [pace-calculator-modal @show-pace-calculator? @distance @units @route-time]
             [save-route-modal @save-in-progress? @route-name]]))})))

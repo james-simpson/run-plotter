@@ -17,4 +17,5 @@
            :distance 0}
 
    :save-in-progress? false
-   :show-pace-calculator? false})
+   :show-pace-calculator? false
+   :snap-to-paths? true})

@@ -86,6 +86,11 @@
     (:show-pace-calculator? db)))
 
 (re-frame/reg-sub
+  ::snap-to-paths?
+  (fn [db _]
+    (:snap-to-paths? db)))
+
+(re-frame/reg-sub
   ::saved-routes
   (fn [db]
     (->> (:saved-routes db)

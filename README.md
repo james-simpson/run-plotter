@@ -13,7 +13,7 @@ In production, both the frontend and REST API backend are served by a single ser
 In dev mode, I use [shadow-cljs](https://github.com/thheller/shadow-cljs)
 to serve the frontend on port 8280 to get hot reloading.
 
-### Development Mode
+### Development Mode    
 
 Start the shadow-cljs server for the frontend:
 ```

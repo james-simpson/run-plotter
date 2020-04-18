@@ -2,6 +2,7 @@
   (:require
     [re-frame.core :as rf]
     [run-plotter.db :as db]
+    [run-plotter.utils :as utils]
     [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
     [day8.re-frame.undo :as undo]
     [day8.re-frame.http-fx]
@@ -81,28 +82,39 @@
 (def mapbox-token "pk.eyJ1IjoianNpbXBzb245MiIsImEiOiJjandzY2ExZDIwbTB3NDRwNWFlZzYyenRvIn0.Vp-UX6Hs7efpjiERiVMVZQ")
 
 (rf/reg-event-fx
-  :set-co-ords
-  (fn [{:keys [db]} [_ co-ords]]
-    {:db (assoc-in db [:route :co-ords] co-ords)
+  ::set-route
+  (fn [{:keys [db]} [_ co-ords distance]]
+    {:db (update db :route #(assoc % :co-ords co-ords
+                                     :distance distance))
      :pan-map [(:map-obj db) (last co-ords)]}))
 
 (rf/reg-event-fx
   :add-waypoint
   (undo/undoable "add waypoint")
   (fn [{:keys [db]} [_ lat lng]]
-    (if-let [last-co-ords (-> db :route :co-ords last)]
-      (let [co-ord-string (->> [last-co-ords [lat lng]]
-                               (map (fn [[lat lng]] [lng lat]))
-                               (map (partial str/join ","))
-                               (str/join ";"))]
-        {:http-xhrio {:method :get
-                      :uri (str "https://api.mapbox.com/directions/v5/mapbox/walking/" co-ord-string
-                                "?access_token=" mapbox-token)
-                      :format (ajax/json-request-format)
-                      :response-format (ajax/json-response-format {:keywords? true})
-                      :on-success [:routing-success]
-                      :on-failure [:routing-failure]}})
-      {:dispatch [:set-co-ords (conj (get-in db [:route :co-ords]) [lat lng])]})))
+    (let [route-co-ords (-> db :route :co-ords)]
+      (cond
+        (empty? route-co-ords)
+        {:dispatch [::set-route [[lat lng]] 0]}
+
+        (not (:snap-to-paths? db))
+        (let [new-distance (+ (get-in db [:route :distance])
+                              (utils/distance-between-lat-lngs [lat lng] (last route-co-ords)))]
+          {:dispatch [::set-route
+                      (concat route-co-ords [[lat lng]])
+                      new-distance]})
+
+        :else
+        (let [co-ord-string (->> [(last route-co-ords) [lat lng]]
+                                 (map (fn [[lat lng]] (str lng "," lat)))
+                                 (str/join ";"))]
+          {:http-xhrio {:method :get
+                        :uri (str "https://api.mapbox.com/directions/v5/mapbox/walking/" co-ord-string
+                                  "?access_token=" mapbox-token)
+                        :format (ajax/json-request-format)
+                        :response-format (ajax/json-response-format {:keywords? true})
+                        :on-success [:routing-success]
+                        :on-failure [:routing-failure]}})))))
 
 (rf/reg-event-fx
   :routing-success
@@ -116,9 +128,9 @@
           new-co-ords (if (= (count prev-co-ords) 1)
                         co-ords
                         (concat prev-co-ords co-ords))
-          distance (:distance route)]
-      {:db (update-in db [:route :distance] #(+ % distance))
-       :dispatch [:set-co-ords new-co-ords]
+          new-distance (+ (get-in db [:route :distance])
+                          (:distance route))]
+      {:dispatch [::set-route new-co-ords new-distance]
        :pan-map [(:map-obj db) (last new-co-ords)]})))
 
 (rf/reg-event-fx
@@ -161,9 +173,9 @@
   (undo/undoable "same route back")
   (fn [{:keys [db]} _]
     (let [co-ords (get-in db [:route :co-ords])
-          return-co-ords (butlast (reverse co-ords))]
-      {:db (-> db (update-in [:route :distance] #(* % 2)))
-       :dispatch [:set-co-ords (concat co-ords return-co-ords)]})))
+          return-co-ords (butlast (reverse co-ords))
+          new-distance (* 2 (get-in db [:route :distance]))]
+      {:dispatch [::set-route (concat co-ords return-co-ords) new-distance]})))
 
 (rf/reg-event-db
   :route-updated
@@ -201,6 +213,11 @@
   :close-pace-calculator
   (fn [db]
     (assoc db :show-pace-calculator? false)))
+
+(rf/reg-event-db
+  :set-snap-to-paths
+  (fn [db [_ snap-to-paths?]]
+    (assoc db :snap-to-paths? snap-to-paths?)))
 
 ;;
 ;; ajax
