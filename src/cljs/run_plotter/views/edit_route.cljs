@@ -9,7 +9,8 @@
     [react-leaflet :as react-leaflet]
     ["react" :as react]
     ["leaflet.icon.glyph"]
-    ["leaflet-polylinedecorator"]))
+    ["leaflet-polylinedecorator"]
+    ["react-plotly.js" :default plotlyPlot]))
 
 (defn- distance-panel
   [value-in-meters units]
@@ -80,22 +81,23 @@
   ([text dispatch-event]
    (route-op-button text dispatch-event false))
   ([text dispatch-event disabled?]
-   [:button.button
-    {:on-click #(rf/dispatch [dispatch-event])
+   [:button.button.is-size-7-mobile
+    {:on-click #(rf/dispatch dispatch-event)
      :disabled disabled?} text]))
 
 (defn- route-operations-panel
   [undos? redos? offer-return-routes? distance]
   [:div.button-panel
    [:div
-    [route-op-button "Clear" :clear-route]
-    [route-op-button "Undo" :undo (not undos?)]
-    [route-op-button "Redo" :redo (not redos?)]
-    [route-op-button "Save" :initiate-save]]
+    [route-op-button "Clear" [:clear-route]]
+    [route-op-button "Undo" [:undo] (not undos?)]
+    [route-op-button "Redo" [:redo] (not redos?)]
+    [route-op-button "Save" [:initiate-save]]]
    [:div.advanced-route-ops
-    [route-op-button "Back to start" :plot-shortest-return-route (not offer-return-routes?)]
-    [route-op-button "Same route back" :plot-same-route-back (not offer-return-routes?)]
-    [route-op-button "Pace" :open-pace-calculator (= distance 0)]]])
+    [route-op-button "Back to start" [:plot-shortest-return-route] (not offer-return-routes?)]
+    [route-op-button "Same route back" [:plot-same-route-back] (not offer-return-routes?)]
+    [route-op-button "Pace" [:toggle-pace-calculator] (= distance 0)]
+    [route-op-button "Ascent" [:toggle-show-ascent] (= distance 0)]]])
 
 (defn- save-route-modal
   [show-save-form? route-name]
@@ -183,7 +185,7 @@
 
 (defn- pace-calculator-modal
   [show-pace-calculator? route-distance distance-units route-time]
-  (let [close-fn #(rf/dispatch [:close-pace-calculator])]
+  (let [close-fn #(rf/dispatch [:toggle-pace-calculator])]
     [:div.modal {:style {:z-index 1000}
                  :class (if show-pace-calculator? "is-active" "")}
      [:div.modal-background {:on-click close-fn}]
@@ -236,6 +238,8 @@
   (reagent/adapt-react-class
     (react-leaflet/withLeaflet (reagent/reactify-component poly-decorator))))
 
+(def Plot (reagent/adapt-react-class plotlyPlot))
+
 (defn edit-route-panel
   []
   (let [state (atom {})
@@ -246,8 +250,8 @@
        :reagent-render
        (fn []
          (let [ref-fn (fn [el]
-                        (swap! state assoc :map-obj (if el (.-leafletElement el)))
-                        (rf/dispatch [:set-map-obj (if el (.-leafletElement el))]))
+                        (swap! state assoc :map-obj (when el (.-leafletElement el)))
+                        (rf/dispatch [:set-map-obj (when el (.-leafletElement el))]))
                centre (rf/subscribe [::subs/centre])
                zoom (rf/subscribe [::subs/zoom])
                device-location (rf/subscribe [::subs/device-location])
@@ -263,12 +267,15 @@
                save-in-progress? (rf/subscribe [::subs/save-in-progress?])
                show-pace-calculator? (rf/subscribe [::subs/show-pace-calculator?])
                snap-to-paths? (rf/subscribe [::subs/snap-to-paths?])
-               route-time (rf/subscribe [::subs/route-time])]
+               route-time (rf/subscribe [::subs/route-time])
+               elevations (rf/subscribe [::subs/elevations])
+               show-ascent? (rf/subscribe [::subs/show-ascent?])
+               total-ascent (rf/subscribe [::subs/total-ascent])]
            [:div
             [Map {:ref ref-fn
                   :center @centre
                   :zoom @zoom
-                  :style {:height "95vh"
+                  :style {:height "94.5vh"
                           :cursor "crosshair"}
                   :on-click (fn [^js/mapClickEvent e]
                               (let [[lat lng] [e.latlng.lat e.latlng.lng]]
@@ -292,7 +299,29 @@
                [Marker {:position end
                         :icon (js/L.icon.glyph #js {:glyph "B"})}])]
 
+            [:div.route-ops-container {:style (when @show-ascent? {:bottom "24vh"
+                                                                   :margin-bottom "17px"})}
+             [route-operations-panel @undos? @redos? @offer-return-routes? @distance]]
+
+            (when @show-ascent?
+              [:div.elevation-container {:style {:height "24vh"}}
+               (let [y (vals @elevations)]
+                 [Plot {:data [{:y y
+                                :fill "tozeroy"
+                                :type "scatter"
+                                :mode "lines"
+                                :hoverinfo "y"}]
+                        :layout {:title (str "Total ascent: " @total-ascent " meters")
+                                 :autosize true
+                                 :margin {:l 35 :r 30 :b 20 :t 60}
+                                 :xaxis {:visible false}}
+                        :useResizeHandler true
+                        :style {:height "100%"}
+                        :config {:displaylogo false
+                                 :modeBarButtonsToRemove ["zoom2d" "pan2d" "select2d" "lasso2d" "zoomIn2d" "zoomOut2d"
+                                                          "autoScale2d" "toImage" "toggleSpikelines"
+                                                          "hoverClosestCartesian" "hoverCompareCartesian"]}}])])
+
             [top-right-panel @distance @units @snap-to-paths? state]
-            [route-operations-panel @undos? @redos? @offer-return-routes? @distance]
             [pace-calculator-modal @show-pace-calculator? @distance @units @route-time]
             [save-route-modal @save-in-progress? @route-name]]))})))

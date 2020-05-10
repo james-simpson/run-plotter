@@ -1,3 +1,6 @@
 - 'Rejoin route back' button
-- Update readme with description & dev setup
+- Remove ability to zoom in on elevation plot
+- Make buttons and panels look raised
+- Refactor event handler
+- Pull out some components e.g. pace calculator, elevation plot
 

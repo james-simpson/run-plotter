@@ -3,21 +3,22 @@
     [re-frame.core :as rf]
     [run-plotter.db :as db]
     [run-plotter.utils :as utils]
-    [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
     [day8.re-frame.undo :as undo]
     [day8.re-frame.http-fx]
     [ajax.core :as ajax]
+    [promesa.core :as promesa]
     [com.michaelgaare.clojure-polyline :as polyline]
     [clojure.string :as str]
-    ["bulma-toast" :as bulma-toast]))
+    ["bulma-toast" :as bulma-toast]
+    ["mapbox-elevation" :as mapbox-elevation]))
 
 (goog-define API_BASE_URL "")
 
 (rf/reg-event-fx
   ::initialize-db
-  (fn-traced [_ _]
-             {:db db/default-db
-              :dispatch [:load-saved-routes]}))
+  (fn [_ _]
+    {:db db/default-db
+     :dispatch [:load-saved-routes]}))
 
 (rf/reg-event-db
   :set-active-panel
@@ -86,7 +87,8 @@
   (fn [{:keys [db]} [_ co-ords distance]]
     {:db (update db :route #(assoc % :co-ords co-ords
                                      :distance distance))
-     :pan-map [(:map-obj db) (last co-ords)]}))
+     :pan-map [(:map-obj db) (last co-ords)]
+     :dispatch [:load-ascent]}))
 
 (rf/reg-event-fx
   :add-waypoint
@@ -159,6 +161,7 @@
   (undo/undoable "clear route")
   (fn [db _]
     (assoc db :route {:co-ords []
+                      :elevations []
                       :distance 0})))
 
 (rf/reg-event-fx
@@ -205,19 +208,24 @@
               :zoom 16)))
 
 (rf/reg-event-db
-  :open-pace-calculator
+  :toggle-pace-calculator
   (fn [db]
-    (assoc db :show-pace-calculator? true)))
+    (update db :show-pace-calculator? not)))
 
 (rf/reg-event-db
-  :close-pace-calculator
+  :toggle-show-ascent
   (fn [db]
-    (assoc db :show-pace-calculator? false)))
+    (update db :show-ascent? not)))
 
 (rf/reg-event-db
   :set-snap-to-paths
   (fn [db [_ snap-to-paths?]]
     (assoc db :snap-to-paths? snap-to-paths?)))
+
+(rf/reg-event-db
+  :set-elevations
+  (fn [db [_ elevations]]
+    (assoc-in db [:route :elevations] elevations)))
 
 ;;
 ;; ajax
@@ -252,6 +260,31 @@
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success [:get-route-success]
                   :on-failure [:get-route-failure]}}))
+
+(def elevation-cache (atom {}))
+(def fetch-elevation (mapbox-elevation mapbox-token))
+
+(rf/reg-event-fx
+  :load-ascent
+  (fn [{:keys [db]} _]
+    (let [{:keys [route]} db
+          route-co-ords (:co-ords route)
+          co-ords (if (> (count route-co-ords) 200)
+                    (take-nth 5 route-co-ords)
+                    route-co-ords)
+          promises (map (fn [[lat lng]]
+                          (promesa/create
+                            (fn [resolve _reject]
+                              (if-let [el (@elevation-cache [lat lng])]
+                                (resolve el)
+                                (fetch-elevation #js [lng lat]
+                                                 (fn [_err elevation]
+                                                   (swap! elevation-cache #(assoc % [lat lng] elevation))
+                                                   (resolve elevation)))))))
+                        co-ords)]
+      (-> (promesa/all promises)
+          (promesa/then (fn [elevations]
+                          (rf/dispatch [:set-elevations (zipmap co-ords elevations)])))))))
 
 (rf/reg-event-fx
   :get-route-success

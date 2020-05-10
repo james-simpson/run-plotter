@@ -1,6 +1,8 @@
 (ns run-plotter.subs
   (:require
-    [re-frame.core :as re-frame]))
+    [re-frame.core :as re-frame]
+    [goog.string :as gstring]
+    [goog.string.format]))
 
 (re-frame/reg-sub
   ::active-panel
@@ -45,6 +47,11 @@
     (get-in db [:route :distance])))
 
 (re-frame/reg-sub
+  ::elevations
+  (fn [db]
+    (get-in db [:route :elevations])))
+
+(re-frame/reg-sub
   ::units
   (fn [db] (:units db)))
 
@@ -76,6 +83,17 @@
       (assoc route-time :total-seconds total-seconds))))
 
 (re-frame/reg-sub
+  ::total-ascent
+  (fn [db]
+    (->> (get-in db [:route :elevations])
+         vals
+         (partition 2 1)
+         (map (fn [[y1 y2]] (- y2 y1)))
+         (filter pos?)
+         (reduce +)
+         (gstring/format "%.1f"))))
+
+(re-frame/reg-sub
   ::save-in-progress?
   (fn [db _]
     (:save-in-progress? db)))
@@ -84,6 +102,11 @@
   ::show-pace-calculator?
   (fn [db _]
     (:show-pace-calculator? db)))
+
+(re-frame/reg-sub
+  ::show-ascent?
+  (fn [db _]
+    (:show-ascent? db)))
 
 (re-frame/reg-sub
   ::snap-to-paths?

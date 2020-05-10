@@ -18,4 +18,5 @@
 
    :save-in-progress? false
    :show-pace-calculator? false
+   :show-ascent? false
    :snap-to-paths? true})
